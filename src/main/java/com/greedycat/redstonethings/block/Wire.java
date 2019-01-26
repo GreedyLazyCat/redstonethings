@@ -34,7 +34,7 @@ import scala.reflect.internal.Trees.If;
 import scala.reflect.internal.Trees.This;
 
 public class Wire extends Block{
-	
+	//Каждое свойство отвечает за то, подключен ли к этой стороне провод или другой участник цепи(true/false)
 	public static final PropertyBool DOWN = PropertyBool.create("down");
 	public static final PropertyBool UP = PropertyBool.create("up");
 	public static final PropertyBool NORTH = PropertyBool.create("north");
@@ -44,113 +44,77 @@ public class Wire extends Block{
 	
 	public Wire() {
 		super(Material.CIRCUITS);
-
 		this.setRegistryName("wire");
 		this.setUnlocalizedName("wire");
 		this.setCreativeTab(CommonProxy.redstone_things_tab);
 	}
-	
+	//Метод "строящий" сеть, передаем в него мир и стартовую позицию
 	public ArrayList<BlockPos> buildNetwork(IBlockAccess worldIn, BlockPos start) {
-		ArrayList<BlockPos> checked = new ArrayList<>();
-		ArrayList<BlockPos> generators = new ArrayList<>();
-		ArrayList<BlockPos> storages = new ArrayList<>();
-		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);
+		ArrayList<BlockPos> checked = new ArrayList<>();//список проверенных блоков
+		ArrayList<BlockPos> generators = new ArrayList<>();//список генераторов, которые будут найдены в сети
+		ArrayList<BlockPos> storages = new ArrayList<>();//список проводов, которые будут найдены в сети
+		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//Очередь, это особенность реализации алгоритма поиска в ширину.
 		
-		queue.offer(start);
-		checked.add(start);
-		while (!queue.isEmpty()) {
-			BlockPos nPos = queue.poll();
+		queue.offer(start);//Добавляем стартовую позицию в очередь
+		checked.add(start);//И сразу добавляем в проверенные
+		while (!queue.isEmpty()) {//Выполняем пока очередь не пуста
+			BlockPos nPos = queue.poll();//Этот метод возвращает объект из головы очереди и сразу его удаляет.
+			//Проверяем не генератор ли стартовая позиция.
 			TileEntity tile = worldIn.getTileEntity(nPos);
 			if(tile != null) {
-				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
+				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// У меня свои капы на генератор и хранилище
 					generators.add(nPos);
 				}
 			}
-			for (EnumFacing face : EnumFacing.VALUES) {
-				BlockPos child = nPos.offset(face);
-				TileEntity tileEntity = worldIn.getTileEntity(child);
+			for (EnumFacing face : EnumFacing.VALUES) {//Циклом прогоняемся по всем возможным "направлением"(не знаю как лучше перевести
+				BlockPos child = nPos.offset(face);//эта функция возвращает позицию со сдвигом в данном направлении
+				TileEntity tileEntity = worldIn.getTileEntity(child);//получаем тайл
 				if(tileEntity != null) {
+					//проверяем, что это, генератор или хранилище
 					if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
-						generators.add(child);
+						generators.add(child); // и добовлеям их в соответственные списки
 					}
 					if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
-						storages.add(child);
+						storages.add(child);// и добовлеям их в соответственные списки
 					}
 				}
-				if(!checked.contains(child) && worldIn.getBlockState(child).getBlock() == this) {
+				//Если в списке проверенных нету этой позиции и блок на этой позиции - это провод, добавляем в список
+				//проверенных + в очередь, чтобы с этой позиции проверить уже другие блоки
+				if(!checked.contains(child) && worldIn.getBlockState(child).getBlock() instanceof Wire) {
 					checked.add(child);
-					queue.addLast(child);
-					//placer.sendMessage(new TextComponentString(poss.size().toString()));
+					queue.addLast(child);//Добавляем в низ очереди
 				}
 			}	
 		}
 		
-		if(!generators.isEmpty()) {
-			for (int i = 0; i < generators.size(); i++) {
+		if(!generators.isEmpty()) {//Если есть в сети  генераторы
+			for (int i = 0; i < generators.size(); i++) {//прогоняемся по ним циклом
 				BlockPos gPos = generators.get(i);
 				TileEntity tileEntity = worldIn.getTileEntity(gPos);
 				if(tileEntity != null && tileEntity instanceof GeneratorTile) {
+					//Проверяем, что они наследают спец класс GeneratorTile, нижке под спойлером есть этот класс
 					GeneratorTile generator = (GeneratorTile) tileEntity;
-					generator.setStorages(storages);
+					generator.setStorages(storages);//устонавливаем в этот генератор список найденных в сети хранилищ
 				}
 			}
 		}
-		
-		System.out.println("Cables: " + checked.size());
 		return generators;
 	}
-	
-	
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		// TODO Auto-generated method stub
-		if(!worldIn.isRemote) {
-			ArrayList<BlockPos> checked = new ArrayList<>();
-			ArrayList<BlockPos> generators = new ArrayList<>();
-			ArrayList<BlockPos> storages = new ArrayList<>();
-			ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);
-			
-			queue.offer(pos);
-			checked.add(pos);
-			while (!queue.isEmpty()) {
-				BlockPos nPos = queue.poll();
-				for (EnumFacing face : EnumFacing.VALUES) {
-					BlockPos child = nPos.offset(face);
-					TileEntity tileEntity = worldIn.getTileEntity(child);
-					if(tileEntity != null) {
-						if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
-							generators.add(child);
-						}
-						if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
-							storages.add(child);
-						}
-					}
-					if(!checked.contains(child) && worldIn.getBlockState(child).getBlock() == this) {
-						checked.add(child);
-						queue.addLast(child);
-						//placer.sendMessage(new TextComponentString(poss.size().toString()));
-					}
-				}	
-			}
-			System.out.println(checked.size());
-			System.out.println("Generators: " + generators.size());
-			System.out.println("Storages: " + storages.size());
-		}
-		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
-	}
-	
-	
+
 	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		// TODO Auto-generated method stub
+		// Когда блок сломали, нам нужно всем проводам вокруг себя дать комманду перестроить сеть.
+		// Ведь сломав провод мы можем разорвать соединение
 		for (EnumFacing face : EnumFacing.VALUES) {
 			BlockPos p = pos.offset(face);
 			TileEntity tileEntity = worldIn.getTileEntity(p);
 			if(tileEntity != null && tileEntity instanceof GeneratorTile) {
+				//Даже если это генератор, мы перестраиваем сеть с его позиции, ведь
+				//генератор может быть подключен всего одним кабелем
 				buildNetwork(worldIn, p);
 			}
 			if(worldIn.getBlockState(p).getBlock() instanceof Wire) {
+				//Заставляем провода в округе перестроить сеть
 				Wire wire = (Wire) worldIn.getBlockState(p).getBlock();
 				wire.buildNetwork(worldIn, p);
 			}
@@ -160,33 +124,33 @@ public class Wire extends Block{
 	
 	@Override
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
-		// TODO Auto-generated method stub
-
+		//Когда провод установлен нам нужно "построить сеть"
 		this.buildNetwork(worldIn, pos);
 		super.onBlockAdded(worldIn, pos, state);
 	}
 	
-	
-	
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		// TODO Auto-generated method stub
+		// Это даст нам возможность добавлять хранилища/генераторы если они были поставлены рядом
 		this.buildNetwork(worldIn, pos);
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
 	}
-	
+	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком
 	public boolean canConnectTo(IBlockAccess world, BlockPos pos, EnumFacing facing){
 		BlockPos child = pos.offset(facing);
 		TileEntity tileEntity = world.getTileEntity(child);
 		if(tileEntity != null) {
 			if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
+				//если генератор - да
 				return true;
 			}
 			if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
+				//если хранилище - да
 				return true;
 			}
 		}
-		if(world.getBlockState(child).getBlock() == this) {
+		if(world.getBlockState(child).getBlock() instanceof Wire) {
+			//если провод - да
 			return true;
 		}
 		return false;
@@ -196,6 +160,7 @@ public class Wire extends Block{
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
 			List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean isActualState) {
+		//В зависимости от того, какие стороны подключены, выставляем определенную коллизию
 		if (canConnectTo(world, pos, EnumFacing.UP)) {
 			addCollisionBoxToList(pos, entityBox, collidingBoxes,
 					new AxisAlignedBB(0.377, 0, 0.377, 0.623D, 0.623D, 0.623D));
@@ -220,12 +185,11 @@ public class Wire extends Block{
 			addCollisionBoxToList(pos, entityBox, collidingBoxes,
 					new AxisAlignedBB(0, 0.377, 0.377, 0.623D, 0.623D, 0.623D));
 		}
-		//super.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entityIn, isActualState);
 	}
 	
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
-		// TODO Auto-generated method stub
+		// Тоже самое, что и с коллизией
 		double[] sidebound = new double[6];
 		sidebound[0]=sidebound[1]=sidebound[2]=0.377D;
 		sidebound[3]=sidebound[4]=sidebound[5]=0.6231D;
@@ -254,11 +218,14 @@ public class Wire extends Block{
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
+		//Создаем контейнер для наших "свойств"
 		return new BlockStateContainer(this, UP, DOWN, NORTH, SOUTH, WEST, EAST);
 	}
 	
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
+		//Пользуясь методом просто устанавливаем true/false свойствам
+		// С помощью этого мы будем рендерить(или нет) частичку кабеля с определенной стороны.
 		return state
 		.withProperty(DOWN, canConnectTo(world, pos, EnumFacing.DOWN))
 		.withProperty(UP, canConnectTo(world, pos, EnumFacing.UP))

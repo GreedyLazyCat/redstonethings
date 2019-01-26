@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
+import com.greedycat.redstonethings.proxy.CommonProxy;
 import com.greedycat.redstonethings.tile.BlockTileEntity;
 import com.greedycat.redstonethings.tile.GeneratorTile;
 import com.greedycat.redstonethings.tile.WireTile;
@@ -34,7 +35,7 @@ public class Wire extends Block{
 
 		this.setRegistryName("wire");
 		this.setUnlocalizedName("wire");
-		this.setCreativeTab(CreativeTabs.COMBAT);
+		this.setCreativeTab(CommonProxy.redstone_things_tab);
 	}
 	
 	public ArrayList<BlockPos> buildNetwork(IBlockAccess worldIn, BlockPos start) {

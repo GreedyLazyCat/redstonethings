@@ -12,7 +12,9 @@ import com.greedycat.redstonethings.util.RegEvents;
 import com.greedycat.redstonethings.util.RegItems;
 
 import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -25,6 +27,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import scala.xml.dtd.impl.Base;
 
 public class CommonProxy {
+	
+	public static CreativeTabs redstone_things_tab = new CreativeTabs(CreativeTabs.getNextID(), "Redstone Things") {
+		
+		@Override
+		public ItemStack getTabIconItem() {
+			// TODO Auto-generated method stub
+			return new ItemStack(RegBlocks.redForge);
+		}
+	};
+	
     public void preInit(FMLPreInitializationEvent event) {
         RegItems.register();
     	RegBlocks.register();

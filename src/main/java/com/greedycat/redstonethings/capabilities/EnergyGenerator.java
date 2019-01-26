@@ -21,6 +21,7 @@ public class EnergyGenerator implements IEnergyGenerator{
 	public int getOutput() {
 		int energyExtracted = Math.min(energy,  output);
 		energy -= energyExtracted;
+		onChages();
 		return energyExtracted;
 	}
 
@@ -47,6 +48,10 @@ public class EnergyGenerator implements IEnergyGenerator{
 	@Override
 	public void setOutput(int output) {
 		this.output = output;
+	}
+	
+	public void onChages(){
+		
 	}
 
 }

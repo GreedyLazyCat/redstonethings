@@ -28,7 +28,12 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	public InventoryBase inventory;
 	public int SIZE = 2;
 	private ItemStackHandler handler = new ItemStackHandler(SIZE);
-	private EnergyGenerator generator = new EnergyGenerator(5000,10000);
+	private EnergyGenerator generator = new EnergyGenerator(5000,10000) {
+		@Override
+		public void onChages() {
+			markDirty();
+		};
+	};
 	
 	private int timer;
 	

@@ -5,6 +5,7 @@ import java.util.Random;
 
 import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.inventory.InventoryBase;
+import com.greedycat.redstonethings.proxy.CommonProxy;
 import com.greedycat.redstonethings.tile.BlockTileEntity;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 
@@ -36,7 +37,7 @@ public class RedForge extends BlockTileEntity<RedForgeTile>{
 		super(Material.ANVIL);
 		this.setRegistryName("redforge");
 		this.setUnlocalizedName("redforge");
-		this.setCreativeTab(CreativeTabs.COMBAT);
+		this.setCreativeTab(CommonProxy.redstone_things_tab);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 	}
 	

@@ -1,10 +1,8 @@
 package com.greedycat.redstonethings.util;
 
 import com.greedycat.redstonethings.block.RedForge;
-import com.greedycat.redstonethings.block.TestStorage;
 import com.greedycat.redstonethings.block.Wire;
 import com.greedycat.redstonethings.tile.RedForgeTile;
-import com.greedycat.redstonethings.tile.TestStorageTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;

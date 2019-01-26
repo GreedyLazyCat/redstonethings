@@ -24,6 +24,7 @@ public class EnergyStorage implements IEnergyStorage{
 		if (!simulate) {
 			energy += energyReceived;
 		}
+		onChages();
 		return energyReceived;
 	}
 
@@ -35,6 +36,7 @@ public class EnergyStorage implements IEnergyStorage{
 		if (!simulate) {
 			energy -= energyExtracted;
 		}
+		onChages();
 		return energyExtracted;
 	}
 
@@ -59,6 +61,10 @@ public class EnergyStorage implements IEnergyStorage{
 	@Override
 	public void setEnergyStored(int energy) {
 		this.energy = energy;
+		
+	}
+
+	public void onChages(){
 		
 	}
 

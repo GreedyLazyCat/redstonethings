@@ -1,5 +1,6 @@
 package com.greedycat.redstonethings.proxy;
 
+import com.google.common.eventbus.Subscribe;
 import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
@@ -10,9 +11,15 @@ import com.greedycat.redstonethings.util.RegCrafts;
 import com.greedycat.redstonethings.util.RegEvents;
 import com.greedycat.redstonethings.util.RegItems;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import scala.xml.dtd.impl.Base;
@@ -32,4 +39,5 @@ public class CommonProxy {
     	RegCrafts.recipesRegister();
     }
     public void postInit(FMLPostInitializationEvent event) {}
+	
 }

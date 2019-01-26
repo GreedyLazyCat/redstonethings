@@ -25,6 +25,10 @@ public class RedForgeGui extends GuiContainer{
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		
+		fontRenderer.drawString(this.tile.getStoredEnergy()+"/"+this.tile.getMaxEnergyStored(), 60, 60, 4210752);
+		
+		System.out.println("MouseX: " + mouseX);
+		System.out.println("MouseY: " + mouseY);
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 	}
 	
@@ -35,7 +39,7 @@ public class RedForgeGui extends GuiContainer{
 		mc.getTextureManager().bindTexture(TEXTURE);
 		int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        
+        System.out.println("X: " + x);
         int energyPercent = this.tile.energyPercent();
         //System.out.println(this.te.storedEnergy);
         double widthToDraw = 160D/100D*energyPercent;

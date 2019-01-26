@@ -1,6 +1,5 @@
 package com.greedycat.redstonethings.util;
 
-import com.greedycat.redstonethings.block.BasicBlock;
 import com.greedycat.redstonethings.block.RedForge;
 import com.greedycat.redstonethings.block.TestStorage;
 import com.greedycat.redstonethings.block.Wire;
@@ -20,23 +19,16 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class RegBlocks {
 	
-	public static BasicBlock block;
 	public static RedForge redForge;
 	public static Wire wire;
-	public static TestStorage storage;
 	
 	public static void register() {
-		block = new BasicBlock(Material.CLOTH, "testblock", CreativeTabs.COMBAT);
 		redForge = new RedForge();
 		wire = new Wire();
-		storage = new TestStorage();
 		
-		registerBlock(block);
+		
 		registerBlock(redForge);
 		registerBlock(wire);
-		registerBlock(storage);
-		
-		registerTile(storage, TestStorageTile.class);
 		registerTile(redForge, RedForgeTile.class);
 	}
 	
@@ -45,8 +37,6 @@ public class RegBlocks {
 	}
 	
 	public static void registerRender() {
-
-		registerBlockRender(block);
 		registerBlockRender(redForge);
 	}
 	public static void registerBlock(Block block) {

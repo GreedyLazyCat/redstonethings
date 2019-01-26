@@ -39,7 +39,7 @@ public class RedForgeGui extends GuiContainer{
 		mc.getTextureManager().bindTexture(TEXTURE);
 		int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        System.out.println("X: " + x);
+        
         int energyPercent = this.tile.energyPercent();
         //System.out.println(this.te.storedEnergy);
         double widthToDraw = 160D/100D*energyPercent;

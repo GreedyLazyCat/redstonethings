@@ -3,6 +3,7 @@ package com.greedycat.redstonethings.block;
 import java.security.PublicKey;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
@@ -15,12 +16,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
@@ -163,14 +166,95 @@ public class Wire extends Block{
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
 	}
 	
-	public boolean canConnectTo(World world, BlockPos pos, EnumFacing facing){
+	public boolean canConnectTo(IBlockAccess world, BlockPos pos, EnumFacing facing){
 		BlockPos child = pos.offset(facing);
 		TileEntity tileEntity = world.getTileEntity(child);
 		if(tileEntity != null) {
 			if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
 				return true;
 			}
+			if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
+				return true;
+			}
 		}
+		if(world.getBlockState(child).getBlock() == this) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	@Override
+	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean isActualState) {
+		if (canConnectTo(world, pos, EnumFacing.UP)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.377, 0, 0.377, 0.623D, 0.623D, 0.623D));
+		}
+		if (canConnectTo(world, pos, EnumFacing.UP)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.377, 0.377, 0.377, 0.623D, 1, 0.623D));
+		}
+		if (canConnectTo(world, pos, EnumFacing.NORTH)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.377, 0.377, 0, 0.623D, 0.623D, 0.623D));
+		}
+		if (canConnectTo(world, pos, EnumFacing.SOUTH)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.377, 0.377, 0.377, 0.623D, 0.623D, 1));
+		}
+		if (canConnectTo(world, pos, EnumFacing.EAST)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.377, 0.377, 0.377, 1, 0.623D, 0.623D));
+		}
+		if (canConnectTo(world, pos, EnumFacing.WEST)) {
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0, 0.377, 0.377, 0.623D, 0.623D, 0.623D));
+		}
+		//super.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entityIn, isActualState);
+	}
+	
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
+		// TODO Auto-generated method stub
+		double[] sidebound = new double[6];
+		sidebound[0]=sidebound[1]=sidebound[2]=0.377D;
+		sidebound[3]=sidebound[4]=sidebound[5]=0.6231D;
+		
+		if (canConnectTo(world, pos, EnumFacing.DOWN) == true) {
+			sidebound[1]=0;
+		}
+		if (canConnectTo(world, pos, EnumFacing.UP) == true) {
+			sidebound[4]=1;
+		}
+		if (canConnectTo(world, pos, EnumFacing.NORTH) == true) {
+			sidebound[2]=0;
+		}
+		if (canConnectTo(world, pos, EnumFacing.SOUTH) == true) {
+			sidebound[5]=1;
+		}
+		if (canConnectTo(world, pos, EnumFacing.WEST) == true) {
+			sidebound[0]=0;
+		}
+		if (canConnectTo(world, pos, EnumFacing.EAST) == true) {
+			sidebound[3]=1;
+		}
+		
+		return new AxisAlignedBB(sidebound[0], sidebound[1], sidebound[2], sidebound[3], sidebound[4], sidebound[5]);
+	}
+	
+
+	
+
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean isFullCube(IBlockState state) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 	

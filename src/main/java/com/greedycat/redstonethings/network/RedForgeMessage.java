@@ -61,7 +61,6 @@ public class RedForgeMessage implements IMessage{
 		public void processMessage(RedForgeMessage message, WorldClient world) {
 			TileEntity tile = world.getTileEntity(new BlockPos(message.x, message.y, message.z));
 			if(tile instanceof RedForgeTile) {
-				System.out.println(message.energy_to_send);
 				RedForgeTile redForgeTile = (RedForgeTile) tile;
 				redForgeTile.setStoredEnergy(message.energy_to_send);
 			}

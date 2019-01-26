@@ -29,6 +29,8 @@ import scala.xml.dtd.impl.Base;
 
 public class CommonProxy {
 	
+	private int messageId = 0;
+	
 	public static CreativeTabs redstone_things_tab = new CreativeTabs(CreativeTabs.getNextID(), "Redstone Things") {
 		
 		@Override
@@ -46,8 +48,8 @@ public class CommonProxy {
     	EnergyGeneratorCapability.register();
     	NetworkRegistry.INSTANCE.registerGuiHandler(BaseClass.INSTANCE, new GuiHandler());
     	
-    	BaseClass.NETWORK.registerMessage(RedForgeMessage.Handler.class, RedForgeMessage.class, 0, Side.CLIENT);
-    	BaseClass.NETWORK.registerMessage(RedBetterEnchMessage.EnchHandler.class, RedBetterEnchMessage.class, 0, Side.CLIENT);
+    	BaseClass.NETWORK.registerMessage(RedForgeMessage.Handler.class, RedForgeMessage.class, messageId++, Side.CLIENT);
+    	BaseClass.NETWORK.registerMessage(RedBetterEnchMessage.EnchHandler.class, RedBetterEnchMessage.class, messageId++, Side.CLIENT);
     }
     public void init(FMLInitializationEvent event) {
     	RegCrafts.recipesRegister();

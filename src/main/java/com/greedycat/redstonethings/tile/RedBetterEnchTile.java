@@ -66,8 +66,9 @@ public class RedBetterEnchTile extends TileEntity implements net.minecraft.util.
 	}
 	
 	public void sendChanges() {
-		if(!this.getWorld().isRemote)
+		if(!this.getWorld().isRemote) {
 			BaseClass.NETWORK.sendToAll(new RedBetterEnchMessage(storage.getEnergyStored(), this.getPos()));
+		}
 	}
 
 }

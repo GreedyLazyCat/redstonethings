@@ -123,8 +123,9 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	}
 	
 	public void sendChanges() {
-		if(!this.getWorld().isRemote)
+		if(!this.getWorld().isRemote) {
 			BaseClass.NETWORK.sendToAll(new RedForgeMessage(generator.getEnergyStored(), this.getPos()));
+		}
 	}
 	
 }

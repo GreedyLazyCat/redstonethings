@@ -15,7 +15,7 @@ import net.minecraft.util.ResourceLocation;
 public class RedBetterEnchGui extends GuiContainer{
 	
 
-	public static final ResourceLocation TEXTURE = new ResourceLocation(BaseClass.MODID, "textures/gui/redforge.png");
+	public static final ResourceLocation TEXTURE = new ResourceLocation(BaseClass.MODID, "textures/gui/rebetterench.png");
 	public RedBetterEnchTile tile;
 	
 	public RedBetterEnchGui(RedBetterEnchTile tile, EntityPlayer player) {

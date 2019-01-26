@@ -1,7 +1,9 @@
 package com.greedycat.redstonethings.gui;
 
 import com.greedycat.redstonethings.BaseClass;
+import com.greedycat.redstonethings.container.RedBetterEnchContainer;
 import com.greedycat.redstonethings.container.RedForgeContainer;
+import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -10,23 +12,24 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 
-public class RedForgeGui extends GuiContainer{
+public class RedBetterEnchGui extends GuiContainer{
 	
+
 	public static final ResourceLocation TEXTURE = new ResourceLocation(BaseClass.MODID, "textures/gui/redforge.png");
-	public RedForgeTile tile;
+	public RedBetterEnchTile tile;
 	
-	public RedForgeGui(RedForgeTile tile, EntityPlayer player) {
-		super(new RedForgeContainer(tile, player));
+	public RedBetterEnchGui(RedBetterEnchTile tile, EntityPlayer player) {
+		super(new RedBetterEnchContainer(tile, player));
 		this.tile = tile;
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		
-		fontRenderer.drawString(this.tile.getStoredEnergy()+"/"+this.tile.getMaxEnergyStored(), 60, 60, 4210752);
-		/* 
+		fontRenderer.drawString(this.tile.getEnergyStored()+"/"+this.tile.getMaxEnrgyStored(), 60, 60, 4210752);
+		/*
 		System.out.println("MouseX: " + mouseX);
 		System.out.println("MouseY: " + mouseY);*/
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);

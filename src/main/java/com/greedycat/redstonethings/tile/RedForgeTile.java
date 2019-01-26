@@ -118,6 +118,7 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 		if(redstone_stack != null && redstone_stack.getItem() == Items.REDSTONE) {
 			System.out.println("Redstone");
 		}
+		
 		this.sendChanges();
 	}
 	

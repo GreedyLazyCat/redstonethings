@@ -1,28 +1,28 @@
 package com.greedycat.redstonethings.network;
 
+import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class RedForgeMessage implements IMessage{
+public class RedBetterEnchMessage implements IMessage{
 	
 	private int energy_to_send;
 	private int x;
 	private int y;
 	private int z;
 	
-	public RedForgeMessage() {}
-	
-	public RedForgeMessage(int energy, BlockPos pos) {
+	public RedBetterEnchMessage() {
+		// TODO Auto-generated constructor stub
+	}
+	public RedBetterEnchMessage(int energy,BlockPos pos){
 		this.energy_to_send = energy;
 		this.x = pos.getX();
 		this.y = pos.getY();
@@ -44,9 +44,9 @@ public class RedForgeMessage implements IMessage{
 		buf.writeInt(y);
 		buf.writeInt(z);
 	}
-	public static class Handler implements IMessageHandler<RedForgeMessage, IMessage> {
+	public static class EnchHandler implements IMessageHandler<RedBetterEnchMessage, IMessage> {
 		@Override
-		public IMessage onMessage(RedForgeMessage message, MessageContext ctx) {
+		public IMessage onMessage(RedBetterEnchMessage message, MessageContext ctx) {
 			
 			Minecraft.getMinecraft().addScheduledTask(new Runnable() {
 				
@@ -58,13 +58,13 @@ public class RedForgeMessage implements IMessage{
 			
 			return null;
 		}
-		public void processMessage(RedForgeMessage message, WorldClient world) {
+		public void processMessage(RedBetterEnchMessage message, WorldClient world) {
 			TileEntity tile = world.getTileEntity(new BlockPos(message.x, message.y, message.z));
-			if(tile instanceof RedForgeTile) {
-				System.out.println(message.energy_to_send);
-				RedForgeTile redForgeTile = (RedForgeTile) tile;
-				redForgeTile.setStoredEnergy(message.energy_to_send);
+			if(tile instanceof RedBetterEnchTile) {
+				RedBetterEnchTile redForgeTile = (RedBetterEnchTile) tile;
+				redForgeTile.setChanges(message.energy_to_send);
 			}
 		}
-    } 
+    }
+
 }

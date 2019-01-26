@@ -1,7 +1,9 @@
 package com.greedycat.redstonethings.util;
 
+import com.greedycat.redstonethings.block.RedBetterEnch;
 import com.greedycat.redstonethings.block.RedForge;
 import com.greedycat.redstonethings.block.Wire;
+import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 
 import net.minecraft.block.Block;
@@ -19,14 +21,18 @@ public class RegBlocks {
 	
 	public static RedForge redForge;
 	public static Wire wire;
+	public static RedBetterEnch better_ench;
 	
 	public static void register() {
 		redForge = new RedForge();
 		wire = new Wire();
-		
+		better_ench = new RedBetterEnch();
 		
 		registerBlock(redForge);
 		registerBlock(wire);
+		registerBlock(better_ench);
+		
+		registerTile(better_ench, RedBetterEnchTile.class);
 		registerTile(redForge, RedForgeTile.class);
 	}
 	

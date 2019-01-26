@@ -5,6 +5,7 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.gui.GuiHandler;
+import com.greedycat.redstonethings.network.RedBetterEnchMessage;
 import com.greedycat.redstonethings.network.RedForgeMessage;
 import com.greedycat.redstonethings.util.RegBlocks;
 import com.greedycat.redstonethings.util.RegCrafts;
@@ -46,6 +47,7 @@ public class CommonProxy {
     	NetworkRegistry.INSTANCE.registerGuiHandler(BaseClass.INSTANCE, new GuiHandler());
     	
     	BaseClass.NETWORK.registerMessage(RedForgeMessage.Handler.class, RedForgeMessage.class, 0, Side.CLIENT);
+    	BaseClass.NETWORK.registerMessage(RedBetterEnchMessage.EnchHandler.class, RedBetterEnchMessage.class, 0, Side.CLIENT);
     }
     public void init(FMLInitializationEvent event) {
     	RegCrafts.recipesRegister();

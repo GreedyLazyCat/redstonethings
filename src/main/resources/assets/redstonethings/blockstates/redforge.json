@@ -1,9 +1,9 @@
 {
     "variants": {
         "facing=north": { "model": "redstonethings:redforge"},
-        "facing=east":  { "model": "redstonethings:redforge", "y": 90 },
-        "facing=south": { "model": "redstonethings:redforge", "y": 180 },
-        "facing=west":  { "model": "redstonethings:redforge", "y": 270 }
+        "facing=east":  { "model": "redstonethings:redforge"},
+        "facing=south": { "model": "redstonethings:redforge"},
+        "facing=west":  { "model": "redstonethings:redforge"}
         
     }
 }

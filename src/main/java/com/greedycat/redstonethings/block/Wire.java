@@ -162,7 +162,18 @@ public class Wire extends Block{
 		this.buildNetwork(worldIn, pos);
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
 	}
-
+	
+	public boolean canConnectTo(World world, BlockPos pos, EnumFacing facing){
+		BlockPos child = pos.offset(facing);
+		TileEntity tileEntity = world.getTileEntity(child);
+		if(tileEntity != null) {
+			if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/*
 	@Override
 	public Class<WireTile> getTileEntityClass() {

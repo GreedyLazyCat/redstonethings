@@ -1,6 +1,8 @@
 package com.greedycat.redstonethings.gui;
 
+import com.greedycat.redstonethings.container.RedBetterEnchContainer;
 import com.greedycat.redstonethings.container.RedForgeContainer;
+import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 import com.greedycat.redstonethings.util.References;
 
@@ -19,6 +21,7 @@ public class GuiHandler implements IGuiHandler {
 		// TODO Auto-generated method stub
 		
 		if(ID == References.RedForgeGui) return new RedForgeContainer((RedForgeTile)world.getTileEntity(new BlockPos(x,y,z)), player);
+		if(ID == 1) return new RedBetterEnchContainer((RedBetterEnchTile)world.getTileEntity(new BlockPos(x,y,z)), player);
 		
 		return null;
 	}
@@ -28,6 +31,7 @@ public class GuiHandler implements IGuiHandler {
 		// TODO Auto-generated method stub
 		
 		if(ID == References.RedForgeGui) return new RedForgeGui((RedForgeTile)world.getTileEntity(new BlockPos(x,y,z)), player);
+		if(ID == 1) return new RedBetterEnchGui((RedBetterEnchTile)world.getTileEntity(new BlockPos(x,y,z)), player);
 		return null;
 	}
 

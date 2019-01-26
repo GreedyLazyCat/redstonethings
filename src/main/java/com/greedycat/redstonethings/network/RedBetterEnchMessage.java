@@ -61,7 +61,6 @@ public class RedBetterEnchMessage implements IMessage{
 		public void processMessage(RedBetterEnchMessage message, WorldClient world) {
 			TileEntity tile = world.getTileEntity(new BlockPos(message.x, message.y, message.z));
 			if(tile instanceof RedBetterEnchTile) {
-				System.out.println(message.energy_to_send);
 				RedBetterEnchTile redForgeTile = (RedBetterEnchTile) tile;
 				redForgeTile.setChanges(message.energy_to_send);
 			}

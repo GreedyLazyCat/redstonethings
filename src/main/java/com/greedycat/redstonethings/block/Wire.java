@@ -14,6 +14,8 @@ import com.greedycat.redstonethings.tile.WireTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -32,7 +34,14 @@ import scala.reflect.internal.Trees.If;
 import scala.reflect.internal.Trees.This;
 
 public class Wire extends Block{
-
+	
+	public static final PropertyBool DOWN = PropertyBool.create("down");
+	public static final PropertyBool UP = PropertyBool.create("up");
+	public static final PropertyBool NORTH = PropertyBool.create("north");
+	public static final PropertyBool SOUTH = PropertyBool.create("south");
+	public static final PropertyBool WEST = PropertyBool.create("west");
+	public static final PropertyBool EAST = PropertyBool.create("east");
+	
 	public Wire() {
 		super(Material.CIRCUITS);
 
@@ -243,9 +252,28 @@ public class Wire extends Block{
 		return new AxisAlignedBB(sidebound[0], sidebound[1], sidebound[2], sidebound[3], sidebound[4], sidebound[5]);
 	}
 	
-
+	@Override
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, UP, DOWN, NORTH, SOUTH, WEST, EAST);
+	}
 	
-
+	@Override
+	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return state
+		.withProperty(DOWN, canConnectTo(world, pos, EnumFacing.DOWN))
+		.withProperty(UP, canConnectTo(world, pos, EnumFacing.UP))
+		.withProperty(NORTH, canConnectTo(world, pos, EnumFacing.NORTH))
+		.withProperty(SOUTH, canConnectTo(world, pos, EnumFacing.SOUTH))
+		.withProperty(WEST, canConnectTo(world, pos, EnumFacing.WEST))
+		.withProperty(EAST, canConnectTo(world, pos, EnumFacing.EAST));
+	}
+	
+	@Override
+	public int getMetaFromState(IBlockState state) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
 	@Override
 	public boolean isOpaqueCube(IBlockState state) {
 		// TODO Auto-generated method stub
@@ -257,16 +285,5 @@ public class Wire extends Block{
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	/*
-	@Override
-	public Class<WireTile> getTileEntityClass() {
-		return WireTile.class;
-	}
-
-	@Override
-	public WireTile createTileEntity(World world, IBlockState blockState) {
-		return new WireTile();
-	}*/
 
 }

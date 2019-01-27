@@ -51,7 +51,7 @@ public class Wire extends Block{
 	}
 	//Метод "строящий" сеть, передаем в него мир и стартовую позицию
 	public ArrayList<BlockPos> buildNetwork(IBlockAccess worldIn, BlockPos start) {
-		HashSet<BlockPos> checked = new HashSet<>();//список проверенных блоков
+		HashSet<BlockPos> checked = new HashSet<>(); //список проверенных блоков
 		ArrayList<BlockPos> generators = new ArrayList<>();//список генераторов, которые будут найдены в сети
 		ArrayList<BlockPos> storages = new ArrayList<>();//список проводов, которые будут найдены в сети
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//Очередь, это особенность реализации алгоритма поиска в ширину.

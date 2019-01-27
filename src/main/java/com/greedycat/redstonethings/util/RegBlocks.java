@@ -42,6 +42,7 @@ public class RegBlocks {
 	
 	public static void registerRender() {
 		registerBlockRender(redForge);
+		registerBlockRender(wire);
 	}
 	public static void registerBlock(Block block) {
 		ForgeRegistries.BLOCKS.register(block);

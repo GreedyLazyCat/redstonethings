@@ -15,6 +15,7 @@ public class GeneratorTile extends TileEntity{
 	
 	public void setStorages(ArrayList<BlockPos> storages) {
 		this.storages = storages;
+		markDirty();
 	}
 	
 	@Override
@@ -27,7 +28,7 @@ public class GeneratorTile extends TileEntity{
 		
 		compound.setTag("storages", list);
 		
-		return compound;
+		return super.writeToNBT(compound);
 	}
 	
 	@Override

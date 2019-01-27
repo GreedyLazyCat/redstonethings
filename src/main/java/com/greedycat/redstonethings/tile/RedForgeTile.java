@@ -77,12 +77,14 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	/* Inventory */
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		compound.setTag("generator", generator.serializeNBT());
 		compound.setTag("inventory", handler.serializeNBT());
         return super.writeToNBT(compound);
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
+		generator.deserializeNBT(compound.getCompoundTag("generator"));
 		handler.deserializeNBT(compound.getCompoundTag("inventory"));
         super.readFromNBT(compound);
 	}
@@ -91,7 +93,7 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	
 	@Override
 	public void onLoad() {
-		generator.setOutput(500);
+		generator.setOutput(2);
 		super.onLoad();
 	}
 	
@@ -100,7 +102,7 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 		
 		timer++;
 		
-		if(timer == 20 * 5) {
+		//if(timer == 20 * 5) {
 			for (int i = 0; i < storages.size(); i++) {
 				BlockPos sPos = storages.get(i);
 				TileEntity tileEntity = this.getWorld().getTileEntity(sPos);
@@ -111,8 +113,8 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 					}
 				}
 			}
-			timer = 0;
-		}
+			//timer = 0;
+		//}
 		
 		ItemStack redstone_stack = handler.getStackInSlot(1);
 		if(redstone_stack != null && redstone_stack.getItem() == Items.REDSTONE) {

@@ -9,6 +9,7 @@ import com.greedycat.redstonethings.network.RedBetterEnchMessage;
 import com.greedycat.redstonethings.network.RedForgeMessage;
 
 import net.minecraft.client.renderer.texture.ITickable;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -69,6 +70,19 @@ public class RedBetterEnchTile extends TileEntity implements net.minecraft.util.
 		if(!this.getWorld().isRemote) {
 			BaseClass.NETWORK.sendToAll(new RedBetterEnchMessage(storage.getEnergyStored(), this.getPos()));
 		}
+	}
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		compound.setTag("storage", storage.serializeNBT());
+        return super.writeToNBT(compound);
+	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		storage.deserializeNBT(compound.getCompoundTag("storage"));
+		handler.deserializeNBT(compound.getCompoundTag("inventory"));
+        super.readFromNBT(compound);
 	}
 
 }

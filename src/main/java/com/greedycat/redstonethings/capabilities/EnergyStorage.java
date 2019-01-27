@@ -2,7 +2,10 @@ package com.greedycat.redstonethings.capabilities;
 
 import com.greedycat.redstonethings.api.IEnergyStorage;
 
-public class EnergyStorage implements IEnergyStorage{
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.INBTSerializable;
+
+public class EnergyStorage implements IEnergyStorage, INBTSerializable<NBTTagCompound>{
 	
 	protected int energy;
 	protected int max_energy_stored;
@@ -67,5 +70,20 @@ public class EnergyStorage implements IEnergyStorage{
 	public void onChages(){
 		
 	}
+
+	@Override
+    public NBTTagCompound serializeNBT()
+    {
+
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("energy", getEnergyStored());
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt)
+    {
+        setEnergyStored(nbt.getInteger("energy"));
+    }
 
 }

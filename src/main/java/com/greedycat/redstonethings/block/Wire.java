@@ -3,6 +3,7 @@ package com.greedycat.redstonethings.block;
 import java.security.PublicKey;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
@@ -50,7 +51,7 @@ public class Wire extends Block{
 	}
 	//Метод "строящий" сеть, передаем в него мир и стартовую позицию
 	public ArrayList<BlockPos> buildNetwork(IBlockAccess worldIn, BlockPos start) {
-		ArrayList<BlockPos> checked = new ArrayList<>();//список проверенных блоков
+		HashSet<BlockPos> checked = new HashSet<>();//список проверенных блоков
 		ArrayList<BlockPos> generators = new ArrayList<>();//список генераторов, которые будут найдены в сети
 		ArrayList<BlockPos> storages = new ArrayList<>();//список проводов, которые будут найдены в сети
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//Очередь, это особенность реализации алгоритма поиска в ширину.
@@ -237,19 +238,16 @@ public class Wire extends Block{
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 	
 	@Override
 	public boolean isOpaqueCube(IBlockState state) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
 	@Override
 	public boolean isFullCube(IBlockState state) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -5,6 +5,7 @@ import com.greedycat.redstonethings.block.RedForge;
 import com.greedycat.redstonethings.block.Wire;
 import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
+import com.greedycat.redstonethings.tile.WireTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -32,6 +33,7 @@ public class RegBlocks {
 		registerBlock(wire);
 		registerBlock(better_ench);
 		
+		registerTile(wire, WireTile.class);
 		registerTile(better_ench, RedBetterEnchTile.class);
 		registerTile(redForge, RedForgeTile.class);
 	}

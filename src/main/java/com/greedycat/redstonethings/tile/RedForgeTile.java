@@ -4,6 +4,8 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.api.IEnergyStorage;
 import com.greedycat.redstonethings.capabilities.EnergyGenerator;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
+import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
+import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorage;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.inventory.InventoryBase;
@@ -99,6 +101,12 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	
 	@Override
 	public void update() {
+		if(getWorld().hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+			EnergyNetworkList list = getWorld().getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+			if(hasNetworkId()) {
+				list.getNetwork(getNetworkId());
+			}
+		}
 		
 		timer++;
 		

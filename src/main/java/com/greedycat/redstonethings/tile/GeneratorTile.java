@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class GeneratorTile extends TileEntity{
+public class GeneratorTile extends NetworkParticipant{
 	public ArrayList<BlockPos> storages = new ArrayList<>();
 	
 	public void setStorages(ArrayList<BlockPos> storages) {

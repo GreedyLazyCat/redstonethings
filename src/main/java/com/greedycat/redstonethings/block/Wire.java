@@ -14,6 +14,7 @@ import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
 import com.greedycat.redstonethings.tile.BlockTileEntity;
 import com.greedycat.redstonethings.tile.GeneratorTile;
+import com.greedycat.redstonethings.tile.NetworkParticipant;
 import com.greedycat.redstonethings.tile.WireTile;
 
 import net.minecraft.block.Block;
@@ -37,7 +38,7 @@ import net.minecraft.world.World;
 import scala.reflect.internal.Trees.If;
 import scala.reflect.internal.Trees.This;
 
-public class Wire extends Block{
+public class Wire extends BlockTileEntity<WireTile>{
 	//Каждое свойство отвечает за то, подключен ли к этой стороне провод или другой участник цепи(true/false)
 	public static final PropertyBool DOWN = PropertyBool.create("down");
 	public static final PropertyBool UP = PropertyBool.create("up");
@@ -53,52 +54,8 @@ public class Wire extends Block{
 		this.setCreativeTab(CommonProxy.redstone_things_tab);
 	}
 	
-	public void buildNetworkNew(World world, BlockPos start) {
-		HashSet<BlockPos> checked = new HashSet<>(); //список проверенных блоков
-		HashSet<BlockPos> participants = new HashSet<>();//список генераторов, которые будут найдены в сети
-		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//Очередь, это особенность реализации алгоритма поиска в ширину.
-		
-		queue.offer(start);//Добавляем стартовую позицию в очередь
-		checked.add(start);//И сразу добавляем в проверенные
-		while (!queue.isEmpty()) {//Выполняем пока очередь не пуста
-			BlockPos nPos = queue.poll();//Этот метод возвращает объект из головы очереди и сразу его удаляет.
-			//Проверяем не генератор ли стартовая позиция.
-			TileEntity tile = world.getTileEntity(nPos);
-			if(tile != null) {
-				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// У меня свои капы на генератор и хранилище
-					participants.add(nPos);
-				}
-			}
-			for (EnumFacing face : EnumFacing.VALUES) {//Циклом прогоняемся по всем возможным "направлением"(не знаю как лучше перевести
-				BlockPos child = nPos.offset(face);//эта функция возвращает позицию со сдвигом в данном направлении
-				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
-				if(tileEntity != null) {
-					//проверяем, что это, генератор или хранилище
-					if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
-						participants.add(child); // и добовлеям их в соответственные списки
-					}
-					if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
-						participants.add(child);// и добовлеям их в соответственные списки
-					}
-				}
-				//Если в списке проверенных нету этой позиции и блок на этой позиции - это провод, добавляем в список
-				//проверенных + в очередь, чтобы с этой позиции проверить уже другие блоки
-				if(!checked.contains(child) && world.getBlockState(child).getBlock() instanceof Wire) {
-					checked.add(child);
-					queue.addLast(child);//Добавляем в низ очереди
-				}
-			}
-		}
-		
-		EnergyNetwork network = new EnergyNetwork();
-		network.setParticipants(participants);
-		if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-			EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-			list.addNetwork(network);
-		}
-	}
-	
 	//Метод "строящий" сеть, передаем в него мир и стартовую позицию
+	@Deprecated
 	public ArrayList<BlockPos> buildNetwork(IBlockAccess worldIn, BlockPos start) {
 		HashSet<BlockPos> checked = new HashSet<>(); //список проверенных блоков
 		ArrayList<BlockPos> generators = new ArrayList<>();//список генераторов, которые будут найдены в сети
@@ -155,6 +112,7 @@ public class Wire extends Block{
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		// Когда блок сломали, нам нужно всем проводам вокруг себя дать комманду перестроить сеть.
 		// Ведь сломав провод мы можем разорвать соединение
+		/*
 		for (EnumFacing face : EnumFacing.VALUES) {
 			BlockPos p = pos.offset(face);
 			TileEntity tileEntity = worldIn.getTileEntity(p);
@@ -168,7 +126,7 @@ public class Wire extends Block{
 				Wire wire = (Wire) worldIn.getBlockState(p).getBlock();
 				wire.buildNetwork(worldIn, p);
 			}
-		}
+		}*/
 		super.onBlockDestroyedByPlayer(worldIn, pos, state);
 	}
 
@@ -176,14 +134,14 @@ public class Wire extends Block{
 	@Override
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
 		//Когда провод установлен нам нужно "построить сеть"
-		this.buildNetwork(worldIn, pos);
+		//this.buildNetwork(worldIn, pos);
 		super.onBlockAdded(worldIn, pos, state);
 	}
 	
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
 		// Это даст нам возможность добавлять хранилища/генераторы если они были поставлены рядом
-		this.buildNetwork(worldIn, pos);
+		//this.buildNetwork(worldIn, pos);
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
 	}
 	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком
@@ -299,6 +257,18 @@ public class Wire extends Block{
 	@Override
 	public boolean isFullCube(IBlockState state) {
 		return false;
+	}
+
+	@Override
+	public Class<WireTile> getTileEntityClass() {
+		// TODO Auto-generated method stub
+		return WireTile.class;
+	}
+
+	@Override
+	public WireTile createTileEntity(World world, IBlockState blockState) {
+		// TODO Auto-generated method stub
+		return new WireTile();
 	}
 
 }

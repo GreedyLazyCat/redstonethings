@@ -5,7 +5,7 @@ import com.greedycat.redstonethings.util.EnergyNetworkUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-public class NetworkParticipant extends TileEntity{
+public class NetworkParticipantTile extends TileEntity{
 	
 	private int networkId = -1;
 	

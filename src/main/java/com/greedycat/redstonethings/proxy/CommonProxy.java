@@ -3,6 +3,7 @@ package com.greedycat.redstonethings.proxy;
 import com.google.common.eventbus.Subscribe;
 import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
+import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.gui.GuiHandler;
 import com.greedycat.redstonethings.network.RedBetterEnchMessage;
@@ -46,6 +47,8 @@ public class CommonProxy {
     	RegEvents.Server();
     	EnergyStorageCapability.register();
     	EnergyGeneratorCapability.register();
+    	EnergyNetworkListCapability.register();
+    	
     	NetworkRegistry.INSTANCE.registerGuiHandler(BaseClass.INSTANCE, new GuiHandler());
     	
     	BaseClass.NETWORK.registerMessage(RedForgeMessage.Handler.class, RedForgeMessage.class, messageId++, Side.CLIENT);

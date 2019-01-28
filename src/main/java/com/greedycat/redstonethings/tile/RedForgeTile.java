@@ -4,6 +4,7 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.api.IEnergyStorage;
 import com.greedycat.redstonethings.capabilities.EnergyGenerator;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
+import com.greedycat.redstonethings.capabilities.EnergyNetwork;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorage;
@@ -101,33 +102,24 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	
 	@Override
 	public void update() {
-		if(getWorld().hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-			EnergyNetworkList list = getWorld().getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-			if(hasNetworkId()) {
-				list.getNetwork(getNetworkId());
-			}
-		}
-		
-		timer++;
-		
-		//if(timer == 20 * 5) {
-		for (int i = 0; i < storages.size(); i++) {
-			BlockPos sPos = storages.get(i);
-			TileEntity tileEntity = this.getWorld().getTileEntity(sPos);
-			if(tileEntity != null) {
-				if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)){
-					EnergyStorage storage = (EnergyStorage)tileEntity.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-					storage.receiveEnergy(generator.getOutput(), false);
+		if(hasNetworkId() && !getWorld().isRemote) {
+			if(getWorld().hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+				EnergyNetworkList list = getWorld().getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+				EnergyNetwork network = list.getNetwork(getNetworkId());
+				if(network != null && network.getParticipants() != null) {
+					for(BlockPos bPos : network.getParticipants()) {
+						TileEntity tileEntity = world.getTileEntity(bPos);
+						if(tileEntity != null) {
+							if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
+								IEnergyStorage storage = tileEntity.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+								storage.receiveEnergy(generator.getOutput(), false);
+							}
+						}
+					}
 				}
 			}
 		}
-			//timer = 0;
-		//}
-		
-		ItemStack redstone_stack = handler.getStackInSlot(1);
-		if(redstone_stack != null && redstone_stack.getItem() == Items.REDSTONE) {
-			System.out.println("Redstone");
-		}
+
 		
 		this.sendChanges();
 	}

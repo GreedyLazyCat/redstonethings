@@ -10,6 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class WireTile extends NetworkParticipant {
+public class WireTile extends NetworkParticipantTile {
 	
 }

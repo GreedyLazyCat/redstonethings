@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class RedBetterEnchTile extends NetworkParticipant implements net.minecraft.util.ITickable{
+public class RedBetterEnchTile extends NetworkParticipantTile implements net.minecraft.util.ITickable{
 	public int SIZE = 1;
 	private ItemStackHandler handler = new ItemStackHandler(SIZE);
 	private EnergyStorage storage = new EnergyStorage(5000,10000) {

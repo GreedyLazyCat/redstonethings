@@ -14,8 +14,9 @@ import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
 import com.greedycat.redstonethings.tile.BlockTileEntity;
 import com.greedycat.redstonethings.tile.GeneratorTile;
-import com.greedycat.redstonethings.tile.NetworkParticipant;
+import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.WireTile;
+import com.greedycat.redstonethings.util.EnergyNetworkUtil;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -107,43 +108,44 @@ public class Wire extends BlockTileEntity<WireTile>{
 		}
 		return generators;
 	}
+	
 
+	public void cleanNetwork(World world) {
+		if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+			EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+			list.networks.clear();
+		}
+	}
+	
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		TileEntity tileEntity = worldIn.getTileEntity(pos);//получаем тайл
+		if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
+			NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+			System.out.println("Participant id is:" + participant.getNetworkId());
+		}
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
+	}
+	
 	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		// Когда блок сломали, нам нужно всем проводам вокруг себя дать комманду перестроить сеть.
 		// Ведь сломав провод мы можем разорвать соединение
-		/*
+		
 		for (EnumFacing face : EnumFacing.VALUES) {
 			BlockPos p = pos.offset(face);
 			TileEntity tileEntity = worldIn.getTileEntity(p);
 			if(tileEntity != null && tileEntity instanceof GeneratorTile) {
-				//Даже если это генератор, мы перестраиваем сеть с его позиции, ведь
-				//генератор может быть подключен всего одним кабелем
-				buildNetwork(worldIn, p);
+				EnergyNetworkUtil.buildNetworkNew(worldIn, p);
 			}
 			if(worldIn.getBlockState(p).getBlock() instanceof Wire) {
-				//Заставляем провода в округе перестроить сеть
-				Wire wire = (Wire) worldIn.getBlockState(p).getBlock();
-				wire.buildNetwork(worldIn, p);
+				EnergyNetworkUtil.buildNetworkNew(worldIn, p);
 			}
-		}*/
+		}
 		super.onBlockDestroyedByPlayer(worldIn, pos, state);
 	}
 
-	
-	@Override
-	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
-		//Когда провод установлен нам нужно "построить сеть"
-		//this.buildNetwork(worldIn, pos);
-		super.onBlockAdded(worldIn, pos, state);
-	}
-	
-	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		// Это даст нам возможность добавлять хранилища/генераторы если они были поставлены рядом
-		//this.buildNetwork(worldIn, pos);
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
-	}
 	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком
 	public boolean canConnectTo(IBlockAccess world, BlockPos pos, EnumFacing facing){
 		BlockPos child = pos.offset(facing);

@@ -103,16 +103,16 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 		timer++;
 		
 		//if(timer == 20 * 5) {
-			for (int i = 0; i < storages.size(); i++) {
-				BlockPos sPos = storages.get(i);
-				TileEntity tileEntity = this.getWorld().getTileEntity(sPos);
-				if(tileEntity != null) {
-					if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)){
-						EnergyStorage storage = (EnergyStorage)tileEntity.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-						storage.receiveEnergy(generator.getOutput(), false);
-					}
+		for (int i = 0; i < storages.size(); i++) {
+			BlockPos sPos = storages.get(i);
+			TileEntity tileEntity = this.getWorld().getTileEntity(sPos);
+			if(tileEntity != null) {
+				if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)){
+					EnergyStorage storage = (EnergyStorage)tileEntity.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+					storage.receiveEnergy(generator.getOutput(), false);
 				}
 			}
+		}
 			//timer = 0;
 		//}
 		

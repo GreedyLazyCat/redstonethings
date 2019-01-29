@@ -31,6 +31,7 @@ public class EnergyNetworkList {
 	}
 	
 	public void removeNetwork(int id){
+		System.out.println("Removed");
 		networks.remove(id);
 	}
 	

@@ -23,6 +23,7 @@ public class EnergyNetworkUtil {
 		HashSet<BlockPos> participants = new HashSet<>();//список генераторов, которые будут найдены в сети
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//ќчередь, это особенность реализации алгоритма поиска в ширину.
 		
+		
 		queue.offer(start);//ƒобавл€ем стартовую позицию в очередь
 		checked.add(start);//» сразу добавл€ем в проверенные
 		while (!queue.isEmpty()) {//¬ыполн€ем пока очередь не пуста
@@ -32,6 +33,15 @@ public class EnergyNetworkUtil {
 			if(tile != null) {
 				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// ” мен€ свои капы на генератор и хранилище
 					participants.add(nPos);
+				}
+				if(tile instanceof NetworkParticipantTile) {
+					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+					if(participant.hasNetworkId()) {
+						if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+							EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+							list.removeNetwork(participant.getNetworkId());
+						}
+					}
 				}
 			}
 			for (EnumFacing face : EnumFacing.VALUES) {//÷иклом прогон€емс€ по всем возможным "направлением"(не знаю как лучше перевести
@@ -108,13 +118,29 @@ public class EnergyNetworkUtil {
 	
 	public static void checkAround(World world, BlockPos pos) {
 		ArrayList<Integer> ids = new ArrayList(1);
+		TileEntity start = world.getTileEntity(pos);
+		boolean generator = start.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+		boolean storage = start.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+		
 		for(EnumFacing facing : EnumFacing.VALUES) {
 			BlockPos child = pos.offset(facing);
 			TileEntity tile = world.getTileEntity(child);
 			if(tile != null && tile instanceof NetworkParticipantTile) {
+				boolean tile_generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+				boolean tile_storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
-				if(participant.hasNetworkId()) ids.add(participant.getNetworkId());
+				if(generator && !tile_generator) {
+					if(participant.hasNetworkId()) ids.add(participant.getNetworkId());
+				}
+				if(storage && !tile_storage) {
+					if(participant.hasNetworkId()) ids.add(participant.getNetworkId());
+				}
+				if(!generator && !storage) {
+					if(participant.hasNetworkId()) ids.add(participant.getNetworkId());
+				}
+				
 			}
+			
 		}
 		if(ids.size()>1) {
 			System.out.println("IDs have more than one element");
@@ -143,5 +169,50 @@ public class EnergyNetworkUtil {
 			System.out.println("IDs is empty");
 			buildNetworkNew(world, pos);
 		}
+	}
+	/**
+	 * 
+	 * @param world
+	 * @param start
+	 * @param networkId
+	 * @return ¬озвращает найденных участников из сети
+	 */
+	public static HashSet<BlockPos> checkNetwork(World world, BlockPos start) {
+		
+		HashSet<BlockPos> checked = new HashSet<>(); //список проверенных блоков
+		HashSet<BlockPos> participants = new HashSet<>();//список генераторов, которые будут найдены в сети
+		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//ќчередь, это особенность реализации алгоритма поиска в ширину.
+		
+		queue.offer(start);//ƒобавл€ем стартовую позицию в очередь
+		checked.add(start);//» сразу добавл€ем в проверенные
+		while (!queue.isEmpty()) {//¬ыполн€ем пока очередь не пуста
+			BlockPos nPos = queue.poll();//Ётот метод возвращает объект из головы очереди и сразу его удал€ет.
+			//ѕровер€ем не генератор ли стартова€ позици€.
+			TileEntity tile = world.getTileEntity(nPos);
+			if(tile != null) {
+				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// ” мен€ свои капы на генератор и хранилище
+					participants.add(nPos);
+				}
+			}
+			for (EnumFacing face : EnumFacing.VALUES) {//÷иклом прогон€емс€ по всем возможным "направлением"(не знаю как лучше перевести
+				BlockPos child = nPos.offset(face);//эта функци€ возвращает позицию со сдвигом в данном направлении
+				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
+				boolean generator = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+				boolean storage = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+				if(tileEntity != null) {
+					if(generator) {
+						participants.add(child); 
+					}
+					if(storage) {
+						participants.add(child);
+					}
+				}
+				if(!checked.contains(child) && (world.getBlockState(child).getBlock() instanceof Wire || generator || storage)) {
+					checked.add(child);
+					queue.addLast(child);
+				}
+			}
+		}
+		return participants;
 	}
 }

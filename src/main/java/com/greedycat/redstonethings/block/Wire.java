@@ -3,6 +3,7 @@ package com.greedycat.redstonethings.block;
 import java.security.PublicKey;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -125,6 +126,11 @@ public class Wire extends BlockTileEntity<WireTile>{
 			NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
 			System.out.println("Participant id is:" + participant.getNetworkId());
 		}
+		if(worldIn.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+			EnergyNetworkList list = worldIn.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+			System.out.println("Count of networks:" + list.getNetworks().size());
+		}
+		
 		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
 	}
 	
@@ -132,17 +138,45 @@ public class Wire extends BlockTileEntity<WireTile>{
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		//  огда блок сломали, нам нужно всем проводам вокруг себ€ дать комманду перестроить сеть.
 		// ¬едь сломав провод мы можем разорвать соединение
-		
+		HashSet<EnergyNetwork> posses = new HashSet<>();
+		int networkId = -1;
 		for (EnumFacing face : EnumFacing.VALUES) {
 			BlockPos p = pos.offset(face);
 			TileEntity tileEntity = worldIn.getTileEntity(p);
-			if(tileEntity != null && tileEntity instanceof GeneratorTile) {
-				EnergyNetworkUtil.buildNetworkNew(worldIn, p);
-			}
-			if(worldIn.getBlockState(p).getBlock() instanceof Wire) {
-				EnergyNetworkUtil.buildNetworkNew(worldIn, p);
+			
+			if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
+				NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+				EnergyNetwork network = null;
+				if(participant.hasNetworkId()) {
+					if(worldIn.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+						EnergyNetworkList list = worldIn.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+						network = list.getNetwork(participant.getNetworkId());
+					}
+					boolean check = false;
+					if(network != null && network.getParticipants() != null) {
+						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
+						for(BlockPos nPos : network.getParticipants()) {
+							if(sub_network.contains(nPos)) {
+								check = true;
+							}else {
+								check = false;
+							}
+						}
+						if(!check) {
+							EnergyNetwork energyNetwork = new EnergyNetwork();
+							energyNetwork.setParticipants(sub_network);
+							posses.add(energyNetwork);
+						}
+					}
+					
+				}
 			}
 		}
+		
+		if(!posses.isEmpty()) {
+			
+		}
+		
 		super.onBlockDestroyedByPlayer(worldIn, pos, state);
 	}
 

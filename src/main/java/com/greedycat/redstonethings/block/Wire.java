@@ -5,7 +5,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyNetwork;
@@ -29,6 +31,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -130,16 +135,15 @@ public class Wire extends BlockTileEntity<WireTile>{
 			EnergyNetworkList list = worldIn.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
 			System.out.println("Count of networks:" + list.getNetworks().size());
 		}
-		
 		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
 	}
 	
 	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		//  огда блок сломали, нам нужно всем проводам вокруг себ€ дать комманду перестроить сеть.
-		// ¬едь сломав провод мы можем разорвать соединение
-		HashSet<EnergyNetwork> posses = new HashSet<>();
+		//BlockPos позици€ одного из участников, дл€ удобства. ќт неЄ запустим алгоритм, который поставит айдишники
+		HashMap<BlockPos,EnergyNetwork> posses = new HashMap();
 		int networkId = -1;
+		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
 		for (EnumFacing face : EnumFacing.VALUES) {
 			BlockPos p = pos.offset(face);
 			TileEntity tileEntity = worldIn.getTileEntity(p);
@@ -148,33 +152,37 @@ public class Wire extends BlockTileEntity<WireTile>{
 				NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
 				EnergyNetwork network = null;
 				if(participant.hasNetworkId()) {
-					if(worldIn.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-						EnergyNetworkList list = worldIn.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-						network = list.getNetwork(participant.getNetworkId());
-					}
+					network = list.getNetwork(participant.getNetworkId());
+					networkId = participant.getNetworkId();
 					boolean check = false;
 					if(network != null && network.getParticipants() != null) {
+						
 						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
-						for(BlockPos nPos : network.getParticipants()) {
-							if(sub_network.contains(nPos)) {
-								check = true;
-							}else {
-								check = false;
-							}
-						}
+						check = EnergyNetworkUtil.contains(sub_network, network.getParticipants());
+						
 						if(!check) {
+							System.out.println("Check");
 							EnergyNetwork energyNetwork = new EnergyNetwork();
 							energyNetwork.setParticipants(sub_network);
-							posses.add(energyNetwork);
+							posses.put(p, energyNetwork);
+						}else {
+							continue;
 						}
 					}
-					
 				}
 			}
 		}
 		
-		if(!posses.isEmpty()) {
-			
+		if(!posses.isEmpty() && networkId != -1) {
+			System.out.println("Size of posses:" + posses.size());
+			list.removeNetwork(networkId);
+			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Map.Entry<BlockPos, EnergyNetwork> network = iterator.next();
+				int id = list.addNetwork(network.getValue());
+				BlockPos start = network.getKey();
+				EnergyNetworkUtil.setNetworkId(worldIn, start, id);
+			}
 		}
 		
 		super.onBlockDestroyedByPlayer(worldIn, pos, state);

@@ -87,30 +87,30 @@ public class EnergyNetworkUtil {
 			BlockPos nPos = queue.poll();//Ётот метод возвращает объект из головы очереди и сразу его удал€ет.
 			//ѕровер€ем не генератор ли стартова€ позици€.
 			TileEntity tile = world.getTileEntity(nPos);
+			boolean generator = false;
 			if(tile != null && tile instanceof NetworkParticipantTile) {
-				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
-				/*
-				if(participant.hasNetworkId()) {
-					if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-						EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-						list.removeNetwork(participant.getNetworkId());
-					}
-				}*/
-				
-				participant.setNetworkId(id);
+				if(tile instanceof NetworkParticipantTile) {
+					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+					participant.setNetworkId(id);
+				}
+				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
 			}
 			for (EnumFacing face : EnumFacing.VALUES) {//÷иклом прогон€емс€ по всем возможным "направлением"(не знаю как лучше перевести
 				BlockPos child = nPos.offset(face);//эта функци€ возвращает позицию со сдвигом в данном направлении
 				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
-				if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
-					NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
-					participant.setNetworkId(id);
+				boolean generator_child = false;
+				if(tileEntity != null) {
+					if(tileEntity instanceof NetworkParticipantTile) {
+						NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+						participant.setNetworkId(id);
+					}
+					generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
 				}
-				//≈сли в списке проверенных нету этой позиции и блок на этой позиции - это провод, добавл€ем в список
-				//проверенных + в очередь, чтобы с этой позиции проверить уже другие блоки
-				if(!checked.contains(child) && world.getBlockState(child).getBlock() instanceof Wire) {
+				if(!checked.contains(child) 
+						&& (world.getBlockState(child).getBlock() instanceof Wire || generator_child) 
+						&& !generator) {
 					checked.add(child);
-					queue.addLast(child);//ƒобавл€ем в низ очереди
+					queue.addLast(child);
 				}
 			}
 		}
@@ -197,9 +197,11 @@ public class EnergyNetworkUtil {
 			for (EnumFacing face : EnumFacing.VALUES) {//÷иклом прогон€емс€ по всем возможным "направлением"(не знаю как лучше перевести
 				BlockPos child = nPos.offset(face);//эта функци€ возвращает позицию со сдвигом в данном направлении
 				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
-				boolean generator = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-				boolean storage = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+				boolean generator = false;
+				boolean storage = false;
 				if(tileEntity != null) {
+					generator = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+					storage = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 					if(generator) {
 						participants.add(child); 
 					}
@@ -214,5 +216,42 @@ public class EnergyNetworkUtil {
 			}
 		}
 		return participants;
+	}
+	
+	public static EnergyNetworkList getEnergyNetworkList(World world) {
+		if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
+			EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
+			return list;
+		}
+		return null;
+	}
+	
+	public static int getNetworkIdFromBlock(World world, BlockPos pos) {
+		TileEntity tile = world.getTileEntity(pos);
+		if(tile != null && tile instanceof NetworkParticipantTile) {
+			NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+			if(participant.hasNetworkId()) {
+				return participant.getNetworkId();
+			}
+		}
+		return -1;
+	}
+	public static  boolean contains(HashSet<BlockPos> where, HashSet<BlockPos> what) {
+		BlockPos[] we = where.toArray(new BlockPos[where.size()]);
+		BlockPos[] wt = what.toArray(new BlockPos[where.size()]);
+		if(we.length < wt.length) {
+			return false;
+		}
+		for (int i = 0; i < wt.length; i++) {
+			for (int j = 0; j < we.length; j++) {
+				if (wt[i] == we[j]) { 
+	                 continue;
+	            }
+				if(j == we.length - 1) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

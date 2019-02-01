@@ -179,6 +179,7 @@ public class Wire extends BlockTileEntity<WireTile>{
 			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
 			while (iterator.hasNext()) {
 				Map.Entry<BlockPos, EnergyNetwork> network = iterator.next();
+				
 				int id = list.addNetwork(network.getValue());
 				BlockPos start = network.getKey();
 				EnergyNetworkUtil.setNetworkId(worldIn, start, id);

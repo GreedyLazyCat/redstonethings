@@ -7,6 +7,11 @@ import net.minecraft.util.math.BlockPos;
 public class EnergyNetwork {
 	public HashSet<BlockPos> participants;
 	
+	public EnergyNetwork() {}
+	
+	public EnergyNetwork(HashSet<BlockPos> participants) {
+		this.participants = participants;
+	}
 	public void add(BlockPos pos) {
 		participants.add(pos);
 	}

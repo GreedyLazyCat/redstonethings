@@ -21,42 +21,7 @@ public class NetworkParticipant extends Block{
 	
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
-		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
-		
-		if(list != null) {
-			TileEntity tile = worldIn.getTileEntity(pos);
-			
-			if(tile != null && tile instanceof NetworkParticipantTile) {
-				System.out.println("Tile");
-				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
-				
-				if(participant.hasNetworkId()) {
-					EnergyNetwork network = list.getNetwork(participant.getNetworkId());
-					
-					if(network != null) {
-						network.remove(participant.getPos());
-						boolean check = false;
-						
-						for (BlockPos nPos : network.getParticipants()) {
-							TileEntity tileEntity = worldIn.getTileEntity(nPos);
-							
-							if(tileEntity != null && tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
-								check = true;
-								break;
-							}
-						}
-						
-						if(!check) {
-							System.out.println("Network have no generator");
-							list.removeNetwork(participant.getNetworkId());
-							EnergyNetworkUtil.setNetworkId(worldIn, pos, -1);
-						}
-						
-					}
-				}
-			
-			}
-		}
+		EnergyNetworkUtil.breakBlock(worldIn, pos);
 		super.breakBlock(worldIn, pos, state);
 	}
 

@@ -141,57 +141,7 @@ public class Wire extends BlockTileEntity<WireTile>{
 	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		//BlockPos позиция одного из участников, для удобства. От неё запустим алгоритм, который поставит айдишники
-		HashMap<BlockPos,EnergyNetwork> posses = new HashMap();
-		int networkId = -1;
-		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
-		for (EnumFacing face : EnumFacing.VALUES) {
-			BlockPos p = pos.offset(face);
-			TileEntity tileEntity = worldIn.getTileEntity(p);
-			
-			if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
-				NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
-				EnergyNetwork network = null;
-				if(participant.hasNetworkId()) {
-					network = list.getNetwork(participant.getNetworkId());
-					networkId = participant.getNetworkId();
-					boolean check = false;
-					if(network != null && network.getParticipants() != null) {
-						
-						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
-						check = EnergyNetworkUtil.contains(sub_network, network.getParticipants());
-						
-						if(!check) {
-							System.out.println("Check");
-							EnergyNetwork energyNetwork = new EnergyNetwork();
-							energyNetwork.setParticipants(sub_network);
-							posses.put(p, energyNetwork);
-						}else {
-							continue;
-						}
-					}
-				}
-			}
-		}
-		
-		if(!posses.isEmpty() && networkId != -1) {
-			System.out.println("Size of posses:" + posses.size());
-			list.removeNetwork(networkId);
-			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
-			while (iterator.hasNext()) {
-				Map.Entry<BlockPos, EnergyNetwork> network = iterator.next();
-				EnergyNetwork nEnergyNetwork = network.getValue();
-				
-				if(nEnergyNetwork.hasGenerators(worldIn)) {
-					int id = list.addNetwork(nEnergyNetwork);
-					BlockPos start = network.getKey();
-					EnergyNetworkUtil.setNetworkId(worldIn, start, id);
-				}
-				else {
-					BlockPos start = network.getKey();
-					EnergyNetworkUtil.setNetworkId(worldIn, start, -1);
-				}
-			}
-		}
+		EnergyNetworkUtil.breakWire(worldIn, pos);
 	}
 
 	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком

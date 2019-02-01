@@ -2,7 +2,10 @@ package com.greedycat.redstonethings.util;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.greedycat.redstonethings.block.Wire;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
@@ -295,6 +298,7 @@ public class EnergyNetworkUtil {
 		}
 		return -1;
 	}
+	
 	public static  boolean contains(HashSet<BlockPos> where, HashSet<BlockPos> what) {
 		BlockPos[] we = where.toArray(new BlockPos[where.size()]);
 		BlockPos[] wt = what.toArray(new BlockPos[where.size()]);
@@ -312,5 +316,98 @@ public class EnergyNetworkUtil {
 			}
 		}
 		return true;
+	}
+	
+	public static void breakBlock(World worldIn,BlockPos pos) {
+		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
+		
+		if(list != null) {
+			TileEntity tile = worldIn.getTileEntity(pos);
+			
+			if(tile != null && tile instanceof NetworkParticipantTile) {
+				System.out.println("Tile");
+				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+				
+				if(participant.hasNetworkId()) {
+					EnergyNetwork network = list.getNetwork(participant.getNetworkId());
+					
+					if(network != null) {
+						network.remove(participant.getPos());
+						boolean check = false;
+						
+						for (BlockPos nPos : network.getParticipants()) {
+							TileEntity tileEntity = worldIn.getTileEntity(nPos);
+							
+							if(tileEntity != null && tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
+								check = true;
+								break;
+							}
+						}
+						
+						if(!check) {
+							System.out.println("Network have no generator");
+							list.removeNetwork(participant.getNetworkId());
+							EnergyNetworkUtil.setNetworkId(worldIn, pos, -1);
+						}
+						
+					}
+				}
+			
+			}
+		}
+	}
+	
+	public static void breakWire(World worldIn,BlockPos pos) {
+		HashMap<BlockPos,EnergyNetwork> posses = new HashMap();
+		int networkId = -1;
+		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
+		for (EnumFacing face : EnumFacing.VALUES) {
+			BlockPos p = pos.offset(face);
+			TileEntity tileEntity = worldIn.getTileEntity(p);
+			
+			if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
+				NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+				EnergyNetwork network = null;
+				if(participant.hasNetworkId()) {
+					network = list.getNetwork(participant.getNetworkId());
+					networkId = participant.getNetworkId();
+					boolean check = false;
+					if(network != null && network.getParticipants() != null) {
+						
+						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
+						check = EnergyNetworkUtil.contains(sub_network, network.getParticipants());
+						
+						if(!check) {
+							System.out.println("Check");
+							EnergyNetwork energyNetwork = new EnergyNetwork();
+							energyNetwork.setParticipants(sub_network);
+							posses.put(p, energyNetwork);
+						}else {
+							continue;
+						}
+					}
+				}
+			}
+		}
+		
+		if(!posses.isEmpty() && networkId != -1) {
+			System.out.println("Size of posses:" + posses.size());
+			list.removeNetwork(networkId);
+			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Map.Entry<BlockPos, EnergyNetwork> network = iterator.next();
+				EnergyNetwork nEnergyNetwork = network.getValue();
+				
+				if(nEnergyNetwork.hasGenerators(worldIn)) {
+					int id = list.addNetwork(nEnergyNetwork);
+					BlockPos start = network.getKey();
+					EnergyNetworkUtil.setNetworkId(worldIn, start, id);
+				}
+				else {
+					BlockPos start = network.getKey();
+					EnergyNetworkUtil.setNetworkId(worldIn, start, -1);
+				}
+			}
+		}
 	}
 }

@@ -73,6 +73,7 @@ public class EnergyNetworkUtil {
 						queue.addLast(child);
 					}
 					if (generator_child && !generator) {
+						System.out.println("GCH G");
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -107,7 +108,7 @@ public class EnergyNetworkUtil {
 			//ѕровер€ем не генератор ли стартова€ позици€.
 			TileEntity tile = world.getTileEntity(nPos);
 			boolean generator = false;
-			if(tile != null && tile instanceof NetworkParticipantTile) {
+			if(tile != null) {
 				if(tile instanceof NetworkParticipantTile) {
 					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
 					participant.setNetworkId(id);
@@ -120,12 +121,23 @@ public class EnergyNetworkUtil {
 				boolean generator_child = false;
 				boolean storage_child = false;
 				if(tileEntity != null) {
-					if(tileEntity instanceof NetworkParticipantTile) {
-						NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
-						participant.setNetworkId(id);
-					}
 					generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
 					storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+					if(tileEntity instanceof NetworkParticipantTile) {
+						if(world.getBlockState(child).getBlock() instanceof Wire) {
+							NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+							participant.setNetworkId(id);
+						}
+						if (generator_child && !generator) {
+							NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+							participant.setNetworkId(id);
+						}
+						if(generator && storage_child) {
+							NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;
+							participant.setNetworkId(id);
+						}
+						
+					}
 				}
 				if(!checked.contains(child)) {
 					if(world.getBlockState(child).getBlock() instanceof Wire) {
@@ -133,6 +145,7 @@ public class EnergyNetworkUtil {
 						queue.addLast(child);
 					}
 					if (generator_child && !generator) {
+						System.out.println("GCH G");
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -146,12 +159,13 @@ public class EnergyNetworkUtil {
 	}
 	
 	public static void checkAround(World world, BlockPos pos) {
-		ArrayList<Integer> ids = new ArrayList(1);
-		ArrayList<NetworkParticipantTile> no_ids = new ArrayList(1);
+		HashSet<Integer> ids = new HashSet(1);
+		HashSet<NetworkParticipantTile> no_ids = new HashSet(1);
 		TileEntity start = world.getTileEntity(pos);
 		boolean generator = start.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
 		boolean storage = start.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 		int this_id = -1;
+		EnergyNetworkList list = getEnergyNetworkList(world);
 		
 		if(generator) {
 			buildNetworkNew(world, pos);
@@ -180,7 +194,7 @@ public class EnergyNetworkUtil {
 						no_ids.add(participant);
 					}
 				}
-				if(!generator && !storage) {
+				if(world.getBlockState(pos).getBlock() instanceof Wire) {
 					if(participant.hasNetworkId()) {
 						ids.add(participant.getNetworkId());
 					}
@@ -192,23 +206,28 @@ public class EnergyNetworkUtil {
 			}
 			
 		}
-		if(ids.size()>1) {
+		
+		Integer[] ids_arr = ids.toArray(new Integer[ids.size()]);
+		NetworkParticipantTile[] no_ids_arr = no_ids.toArray(new NetworkParticipantTile[no_ids.size()]);
+		
+		if(ids_arr.length>1) {
 			System.out.println("IDs have more than one element");
-			EnergyNetworkList list = getEnergyNetworkList(world);
 			HashSet<BlockPos> result = new HashSet<>();
 			if(list != null) {
-				for (int i = 0; i < ids.size(); i++) {
-					result.addAll(list.getNetwork(ids.get(i)).getParticipants());
-					list.removeNetwork(ids.get(i));
+				for (int i = 0; i < ids_arr.length; i++) {
+					if(list.getNetwork(ids_arr[i]) != null) {
+						result.addAll(list.getNetwork(ids_arr[i]).getParticipants());
+						list.removeNetwork(ids_arr[i]);
+					}
 				}
 			}
 			int new_id = list.addNetwork(new EnergyNetwork(result));
 			setNetworkId(world, pos, new_id);
 		}
-		else if (!ids.isEmpty() && ids.size() == 1) {
+		else if (!ids.isEmpty() && ids_arr.length == 1) {
 			System.out.println("IDs have only one element");
 			TileEntity tile = world.getTileEntity(pos);
-			this_id = ids.get(0);
+			this_id = ids_arr[0];
 			if(tile != null) {
 				if(tile instanceof NetworkParticipantTile) {
 					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
@@ -216,18 +235,21 @@ public class EnergyNetworkUtil {
 				}
 				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null) || 
 						tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
-					if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-						EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-						if(list.getNetwork(this_id) != null){
-							list.getNetwork(this_id).getParticipants().add(pos);
-						}
+					if(list != null && list.getNetwork(this_id) != null){
+						list.getNetwork(this_id).getParticipants().add(pos);
 					}
 				}
 			}
 		}
 		if(!no_ids.isEmpty() && this_id != -1) {
-			for (int i = 0; i < no_ids.size(); i++) {
-				NetworkParticipantTile participant = no_ids.get(i);
+			System.out.println("No ids is not empty");
+			for (int i = 0; i < no_ids_arr.length; i++) {
+				NetworkParticipantTile participant = no_ids_arr[i];
+				boolean generator_child = participant.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+				boolean storage_child = participant.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+				if(generator_child || storage_child && list != null) {
+					list.getNetwork(this_id).add(participant.getPos());
+				}
 				participant.setNetworkId(this_id);
 			}
 		}
@@ -251,7 +273,11 @@ public class EnergyNetworkUtil {
 			BlockPos nPos = queue.poll();//Ётот метод возвращает объект из головы очереди и сразу его удал€ет.
 			//ѕровер€ем не генератор ли стартова€ позици€.
 			TileEntity tile = world.getTileEntity(nPos);
+			boolean generator = false;
+			boolean storage = false;
 			if(tile != null) {
+				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// ” мен€ свои капы на генератор и хранилище
 					participants.add(nPos);
 				}
@@ -259,21 +285,31 @@ public class EnergyNetworkUtil {
 			for (EnumFacing face : EnumFacing.VALUES) {//÷иклом прогон€емс€ по всем возможным "направлением"(не знаю как лучше перевести
 				BlockPos child = nPos.offset(face);//эта функци€ возвращает позицию со сдвигом в данном направлении
 				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
-				boolean generator = false;
-				boolean storage = false;
+				boolean generator_child = false;
+				boolean storage_child = false;
 				if(tileEntity != null) {
-					generator = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-					storage = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-					if(generator) {
+					generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+					storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+					if(generator_child) {
 						participants.add(child); 
 					}
-					if(storage) {
+					if(storage_child) {
 						participants.add(child);
 					}
 				}
 				if(!checked.contains(child) && (world.getBlockState(child).getBlock() instanceof Wire || generator || storage)) {
-					checked.add(child);
-					queue.addLast(child);
+					if(world.getBlockState(child).getBlock() instanceof Wire) {
+						checked.add(child);
+						queue.addLast(child);
+					}
+					if (generator_child && !generator) {
+						checked.add(child);
+						queue.addLast(child);
+					}
+					if(generator && storage_child) {
+						checked.add(child);
+						queue.addLast(child);
+					}
 				}
 			}
 		}
@@ -377,11 +413,19 @@ public class EnergyNetworkUtil {
 						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
 						check = EnergyNetworkUtil.contains(sub_network, network.getParticipants());
 						
-						if(!check) {
-							System.out.println("Check");
-							EnergyNetwork energyNetwork = new EnergyNetwork();
-							energyNetwork.setParticipants(sub_network);
-							posses.put(p, energyNetwork);
+						if(!check) {//!! опасность говнокода
+							boolean equal_check = false;
+							Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
+							while (iterator.hasNext()) {
+								Map.Entry<BlockPos, EnergyNetwork> entry = iterator.next();
+								EnergyNetwork nEnergyNetwork = entry.getValue();
+								equal_check = EnergyNetworkUtil.contains(nEnergyNetwork.getParticipants(), sub_network);
+							}
+							if(!equal_check) {
+								EnergyNetwork energyNetwork = new EnergyNetwork();
+								energyNetwork.setParticipants(sub_network);
+								posses.put(p, energyNetwork);
+							}
 						}else {
 							continue;
 						}
@@ -399,6 +443,7 @@ public class EnergyNetworkUtil {
 				EnergyNetwork nEnergyNetwork = network.getValue();
 				
 				if(nEnergyNetwork.hasGenerators(worldIn)) {
+					System.out.println("Has generators");
 					int id = list.addNetwork(nEnergyNetwork);
 					BlockPos start = network.getKey();
 					EnergyNetworkUtil.setNetworkId(worldIn, start, id);

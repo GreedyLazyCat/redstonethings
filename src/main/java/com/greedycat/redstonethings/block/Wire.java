@@ -30,6 +30,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -126,6 +127,9 @@ public class Wire extends BlockTileEntity<WireTile>{
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
 			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		if(playerIn.getHeldItem(hand) != ItemStack.EMPTY && playerIn.getHeldItem(hand).getItem() == Items.APPLE) {
+			cleanNetwork(worldIn);
+		}
 		TileEntity tileEntity = worldIn.getTileEntity(pos);//получаем тайл
 		if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
 			NetworkParticipantTile participant = (NetworkParticipantTile) tileEntity;

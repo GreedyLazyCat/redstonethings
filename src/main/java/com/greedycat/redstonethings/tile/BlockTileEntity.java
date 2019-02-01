@@ -2,6 +2,8 @@ package com.greedycat.redstonethings.tile;
 
 import javax.annotation.Nullable;
 
+import com.greedycat.redstonethings.block.NetworkParticipant;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -11,7 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public abstract class BlockTileEntity<T extends TileEntity> extends Block {
+public abstract class BlockTileEntity<T extends TileEntity> extends NetworkParticipant {
 
     
 

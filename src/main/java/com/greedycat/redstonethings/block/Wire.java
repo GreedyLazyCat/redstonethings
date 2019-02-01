@@ -179,14 +179,19 @@ public class Wire extends BlockTileEntity<WireTile>{
 			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
 			while (iterator.hasNext()) {
 				Map.Entry<BlockPos, EnergyNetwork> network = iterator.next();
+				EnergyNetwork nEnergyNetwork = network.getValue();
 				
-				int id = list.addNetwork(network.getValue());
-				BlockPos start = network.getKey();
-				EnergyNetworkUtil.setNetworkId(worldIn, start, id);
+				if(nEnergyNetwork.hasGenerators(worldIn)) {
+					int id = list.addNetwork(nEnergyNetwork);
+					BlockPos start = network.getKey();
+					EnergyNetworkUtil.setNetworkId(worldIn, start, id);
+				}
+				else {
+					BlockPos start = network.getKey();
+					EnergyNetworkUtil.setNetworkId(worldIn, start, -1);
+				}
 			}
 		}
-		
-		super.onBlockDestroyedByPlayer(worldIn, pos, state);
 	}
 
 	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком

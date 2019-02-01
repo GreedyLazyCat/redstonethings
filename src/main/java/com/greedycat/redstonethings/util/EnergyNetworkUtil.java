@@ -150,6 +150,10 @@ public class EnergyNetworkUtil {
 		boolean storage = start.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 		int this_id = -1;
 		
+		if(generator) {
+			buildNetworkNew(world, pos);
+		}
+		
 		for(EnumFacing facing : EnumFacing.VALUES) {
 			BlockPos child = pos.offset(facing);
 			TileEntity tile = world.getTileEntity(child);

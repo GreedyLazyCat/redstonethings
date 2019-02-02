@@ -1,7 +1,9 @@
 package com.greedycat.redstonethings.util;
 
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -73,7 +75,6 @@ public class EnergyNetworkUtil {
 						queue.addLast(child);
 					}
 					if (generator_child && !generator) {
-						System.out.println("GCH G");
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -208,7 +209,6 @@ public class EnergyNetworkUtil {
 		NetworkParticipantTile[] no_ids_arr = no_ids.toArray(new NetworkParticipantTile[no_ids.size()]);
 		
 		if(ids_arr.length>1) {
-			System.out.println("IDs have more than one element");
 			HashSet<BlockPos> result = new HashSet<>();
 			if(list != null) {
 				for (int i = 0; i < ids_arr.length; i++) {
@@ -222,7 +222,6 @@ public class EnergyNetworkUtil {
 			setNetworkId(world, pos, new_id);
 		}
 		else if (!ids.isEmpty() && ids_arr.length == 1) {
-			System.out.println("IDs have only one element");
 			TileEntity tile = world.getTileEntity(pos);
 			this_id = ids_arr[0];
 			if(tile != null) {
@@ -239,7 +238,6 @@ public class EnergyNetworkUtil {
 			}
 		}
 		if(!no_ids.isEmpty() && this_id != -1) {
-			System.out.println("No ids is not empty");
 			for (int i = 0; i < no_ids_arr.length; i++) {
 				NetworkParticipantTile participant = no_ids_arr[i];
 				boolean generator_child = participant.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
@@ -247,6 +245,7 @@ public class EnergyNetworkUtil {
 				if(generator_child || storage_child && list != null) {
 					list.getNetwork(this_id).add(participant.getPos());
 				}
+				setNetworkId(world, participant.getPos(), this_id);
 				participant.setNetworkId(this_id);
 			}
 		}
@@ -362,7 +361,6 @@ public class EnergyNetworkUtil {
 			TileEntity tile = worldIn.getTileEntity(pos);
 			
 			if(tile != null && tile instanceof NetworkParticipantTile) {
-				System.out.println("Tile");
 				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
 				
 				if(participant.hasNetworkId()) {
@@ -370,19 +368,7 @@ public class EnergyNetworkUtil {
 					
 					if(network != null) {// не забыть
 						network.remove(participant.getPos());
-						boolean check = false;
-						
-						for (BlockPos nPos : network.getParticipants()) {
-							TileEntity tileEntity = worldIn.getTileEntity(nPos);
-							
-							if(tileEntity != null && tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
-								check = true;
-								break;
-							}
-						}
-						
-						if(!check) {
-							System.out.println("Network have no generator");
+						if(network.hasGenerators(worldIn)){
 							list.removeNetwork(participant.getNetworkId());
 							EnergyNetworkUtil.setNetworkId(worldIn, pos, -1);
 						}
@@ -413,7 +399,6 @@ public class EnergyNetworkUtil {
 						
 						HashSet<BlockPos> sub_network = EnergyNetworkUtil.checkNetwork(worldIn, p);
 						check = EnergyNetworkUtil.contains(sub_network, network.getParticipants());
-						System.out.println("Sub network:" + sub_network.size());
 						
 						if(!check) {//!! опасность говнокода
 							boolean equal_check = false;
@@ -421,9 +406,9 @@ public class EnergyNetworkUtil {
 							while (iterator.hasNext()) {
 								Map.Entry<BlockPos, EnergyNetwork> entry = iterator.next();
 								EnergyNetwork nEnergyNetwork = entry.getValue();
-								equal_check = EnergyNetworkUtil.contains(nEnergyNetwork.getParticipants(), sub_network);
+								equal_check = Arrays.equals(nEnergyNetwork.getParticipants().toArray(new BlockPos[nEnergyNetwork.getParticipants().size()]), 
+										sub_network.toArray(new BlockPos[sub_network.size()]));
 								if(equal_check) {
-									System.out.println("Equal check");
 									break;
 								}
 							}
@@ -441,7 +426,6 @@ public class EnergyNetworkUtil {
 		}
 		
 		if(!posses.isEmpty() && networkId != -1) {
-			System.out.println("Size of posses:" + posses.size());
 			list.removeNetwork(networkId);
 			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
 			while (iterator.hasNext()) {
@@ -449,7 +433,6 @@ public class EnergyNetworkUtil {
 				EnergyNetwork nEnergyNetwork = network.getValue();
 				
 				if(nEnergyNetwork.hasGenerators(worldIn)) {
-					System.out.println("Has generators");
 					int id = list.addNetwork(nEnergyNetwork);
 					BlockPos start = network.getKey();
 					EnergyNetworkUtil.setNetworkId(worldIn, start, id);

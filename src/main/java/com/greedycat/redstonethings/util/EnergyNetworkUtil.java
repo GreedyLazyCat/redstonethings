@@ -36,19 +36,15 @@ public class EnergyNetworkUtil {
 			//Проверяем не генератор ли стартовая позиция.
 			TileEntity tile = world.getTileEntity(nPos);
 			boolean generator = false;
+			boolean storage = false;
 			if(tile != null) {
-				if(tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {// У меня свои капы на генератор и хранилище
-					generator = true;
+				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+				if(generator) {// У меня свои капы на генератор и хранилище
 					participants.add(nPos);
 				}
-				if(tile instanceof NetworkParticipantTile) {
-					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
-					if(participant.hasNetworkId()) {
-						if(world.hasCapability(EnergyNetworkListCapability.NETWORK_LIST, null)) {
-							EnergyNetworkList list = world.getCapability(EnergyNetworkListCapability.NETWORK_LIST, null);
-							list.removeNetwork(participant.getNetworkId());
-						}
-					}
+				if(storage) {
+					participants.add(nPos);
 				}
 			}
 			for (EnumFacing face : EnumFacing.VALUES) {//Циклом прогоняемся по всем возможным "направлением"(не знаю как лучше перевести
@@ -56,25 +52,26 @@ public class EnergyNetworkUtil {
 				TileEntity tileEntity = world.getTileEntity(child);//получаем тайл
 				boolean generator_child = false;
 				boolean storage_child = false;
-				if(tileEntity != null) {
-					generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-					storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-					//проверяем, что это, генератор или хранилище
-					if(generator_child) {
-						participants.add(child); // и добовлеям их в соответственные списки
-					}
-					if(storage_child) {
-						participants.add(child);// и добовлеям их в соответственные списки
-					}
-				}
 				//Если в списке проверенных нету этой позиции и блок на этой позиции - это провод, добавляем в список
 				//проверенных + в очередь, чтобы с этой позиции проверить уже другие блоки
 				if(!checked.contains(child)) {
+					NetworkParticipantTile participant = null;
+					if(tileEntity != null) {
+						if(tileEntity instanceof NetworkParticipantTile) {
+							participant = (NetworkParticipantTile) tileEntity;
+						}
+						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+					}
 					if(world.getBlockState(child).getBlock() instanceof Wire) {
 						checked.add(child);
 						queue.addLast(child);
 					}
 					if (generator_child && !generator) {
+						checked.add(child);
+						queue.addLast(child);
+					}
+					if(storage_child && !storage) {
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -368,7 +365,8 @@ public class EnergyNetworkUtil {
 					
 					if(network != null) {// не забыть
 						network.remove(participant.getPos());
-						if(network.hasGenerators(worldIn)){
+						if(!network.hasGenerators(worldIn)){
+							System.out.println("Have no");
 							list.removeNetwork(participant.getNetworkId());
 							EnergyNetworkUtil.setNetworkId(worldIn, pos, -1);
 						}

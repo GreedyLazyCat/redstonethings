@@ -3,9 +3,14 @@ package com.greedycat.redstonethings.capabilities;
 public class PlayerRedstoneEnergy {
 	protected int energy;
 	protected int max_energy_stored;
+	protected int level = 1;
 	
 	public PlayerRedstoneEnergy() {
-		this(0, 10000);
+		this(500, 1000);
+	}
+	
+	public int energyPercent() {
+		return energy / (max_energy_stored / 100);
 	}
 	
 	public PlayerRedstoneEnergy(int energy, int max) {
@@ -32,7 +37,23 @@ public class PlayerRedstoneEnergy {
 		onChages();
 		return energyExtracted;
 	}
-
+		
+	public void increaseLevel() {
+		level++;
+		if(level > 10) {
+			level = 10;
+		}
+		setMaxEnergyStored(1000 * level);
+	}
+	
+	public void decreaseLevel() {
+		level--;
+		if(level < 1) {
+			level = 1;
+		}
+		setMaxEnergyStored(1000 * level);
+	}
+	
 	public int getEnergyStored() {
 		return energy;
 	}
@@ -49,7 +70,14 @@ public class PlayerRedstoneEnergy {
 		this.energy = energy;
 		
 	}
-
+	
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	public int getLevel() {
+		return level;
+	}
+	
 	public void onChages(){
 		
 	}

@@ -9,6 +9,7 @@ import com.greedycat.redstonethings.gui.PlayerEnergyGui;
 import com.jcraft.jorbis.Block;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,6 +33,7 @@ public class RedEventHandler {
 	
 	private static final ResourceLocation WORLD_CAP = new ResourceLocation(BaseClass.MODID, "EnergyNetworkList");
 	private static final ResourceLocation PLAYER_CAP = new ResourceLocation(BaseClass.MODID, "PlayerRedstoneEnergy");
+	private static ResourceLocation GUI = new ResourceLocation(BaseClass.MODID, "textures/gui/energy_bar_test.png");
 	
 	@SubscribeEvent
 	public static void attachCapability(AttachCapabilitiesEvent<World> event) {
@@ -104,8 +106,21 @@ public class RedEventHandler {
 	@SubscribeEvent
 	public static void renderGui(RenderGameOverlayEvent.Post event) {
 		if (event.getType() == ElementType.ALL) {
-			if(Minecraft.getMinecraft().player.hasCapability(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, null))
-				Minecraft.getMinecraft().ingameGUI.drawCenteredString(Minecraft.getMinecraft().fontRenderer, "Test", event.getResolution().getScaledWidth() / 2, (event.getResolution().getScaledHeight() / 2) - 4, Integer.parseInt("FFAA00", 16));
+			if(Minecraft.getMinecraft().player.hasCapability(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, null)) {
+				
+				PlayerRedstoneEnergy energy = Minecraft.getMinecraft().player.getCapability(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, null);
+				int energyPercent = energy.energyPercent();
+				float percent = (132f / 100f) * energyPercent;
+				Minecraft.getMinecraft().getTextureManager().bindTexture(GUI);
+				Minecraft.getMinecraft().ingameGUI
+				.drawTexturedModalRect(event.getResolution().getScaledWidth() / 2 - 66, 0, 0, 0, 132, 12);
+				Minecraft.getMinecraft().ingameGUI
+				.drawTexturedModalRect(event.getResolution().getScaledWidth() / 2 - 66, 0, 0, 13, Math.round(percent), 12);
+				if(Minecraft.getMinecraft().player.isSneaking())
+					Minecraft.getMinecraft().ingameGUI
+					.drawCenteredString(Minecraft.getMinecraft().fontRenderer, energy.getEnergyStored() + "/" + energy.getMaxEnergyStored(), event.getResolution().getScaledWidth() / 2, 0, Integer.parseInt("FFAA00", 16));
+			}
+				//Minecraft.getMinecraft().ingameGUI.drawCenteredString(Minecraft.getMinecraft().fontRenderer, "Test", event.getResolution().getScaledWidth() / 2, (event.getResolution().getScaledHeight() / 2) - 4, Integer.parseInt("FFAA00", 16));
 		}
 	}
 }

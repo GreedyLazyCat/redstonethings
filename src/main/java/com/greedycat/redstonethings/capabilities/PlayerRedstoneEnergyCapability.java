@@ -29,6 +29,7 @@ public class PlayerRedstoneEnergyCapability {
 				NBTTagCompound compound = new NBTTagCompound();
 				compound.setInteger("energy", instance.getEnergyStored());
 				compound.setInteger("max_energy", instance.getMaxEnergyStored());
+				compound.setInteger("level", instance.getLevel());
 				
 				return compound;
 			}
@@ -39,6 +40,7 @@ public class PlayerRedstoneEnergyCapability {
 				NBTTagCompound compound = (NBTTagCompound) nbt;
 				instance.setMaxEnergyStored(compound.getInteger("max_energy"));
 				instance.setEnergyStored(compound.getInteger("energy"));
+				instance.setLevel(compound.getInteger("level"));
 			}
             
         }, PlayerRedstoneEnergy::new);

@@ -3,15 +3,26 @@ package com.greedycat.redstonethings.event;
 import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
+import com.greedycat.redstonethings.capabilities.PlayerRedstoneEnergy;
+import com.greedycat.redstonethings.capabilities.PlayerRedstoneEnergyCapability;
+import com.greedycat.redstonethings.gui.PlayerEnergyGui;
+import com.jcraft.jorbis.Block;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -20,6 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class RedEventHandler {
 	
 	private static final ResourceLocation WORLD_CAP = new ResourceLocation(BaseClass.MODID, "EnergyNetworkList");
+	private static final ResourceLocation PLAYER_CAP = new ResourceLocation(BaseClass.MODID, "PlayerRedstoneEnergy");
 	
 	@SubscribeEvent
 	public static void attachCapability(AttachCapabilitiesEvent<World> event) {
@@ -52,5 +64,48 @@ public class RedEventHandler {
 				.readNBT(EnergyNetworkListCapability.NETWORK_LIST, energyNetworkList, null, nbt);
 			}
 		});
+	}
+	@SubscribeEvent
+	public static void attachCapabilityToPlayer(AttachCapabilitiesEvent<Entity> event) {
+		if (!(event.getObject() instanceof EntityPlayer)) return; 
+		event.addCapability(PLAYER_CAP, new ICapabilitySerializable<NBTTagCompound>() {
+			
+			private final PlayerRedstoneEnergy playerRedstoneEnergy = new PlayerRedstoneEnergy();
+			
+			@Override
+			public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+				// TODO Auto-generated method stub
+				return capability == PlayerRedstoneEnergyCapability.PLAYER_ENERGY;
+			}
+
+			@Override
+			public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+				if (capability == PlayerRedstoneEnergyCapability.PLAYER_ENERGY) {
+					return (T) this.playerRedstoneEnergy;
+				}
+				return null;
+			}
+
+			@Override
+			public NBTTagCompound serializeNBT() {
+				return (NBTTagCompound) PlayerRedstoneEnergyCapability.PLAYER_ENERGY.getStorage()
+				.writeNBT(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, playerRedstoneEnergy, null);
+			}
+
+			@Override
+			public void deserializeNBT(NBTTagCompound nbt) {
+				PlayerRedstoneEnergyCapability.PLAYER_ENERGY.getStorage()
+				.readNBT(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, playerRedstoneEnergy, null, nbt);
+				
+				
+			}
+		});
+	}
+	@SubscribeEvent
+	public static void renderGui(RenderGameOverlayEvent.Post event) {
+		if (event.getType() == ElementType.ALL) {
+			if(Minecraft.getMinecraft().player.hasCapability(PlayerRedstoneEnergyCapability.PLAYER_ENERGY, null))
+				Minecraft.getMinecraft().ingameGUI.drawCenteredString(Minecraft.getMinecraft().fontRenderer, "Test", event.getResolution().getScaledWidth() / 2, (event.getResolution().getScaledHeight() / 2) - 4, Integer.parseInt("FFAA00", 16));
+		}
 	}
 }

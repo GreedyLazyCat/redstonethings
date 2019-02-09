@@ -5,6 +5,8 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
+import com.greedycat.redstonethings.capabilities.PlayerRedstoneEnergy;
+import com.greedycat.redstonethings.capabilities.PlayerRedstoneEnergyCapability;
 import com.greedycat.redstonethings.gui.GuiHandler;
 import com.greedycat.redstonethings.network.RedBetterEnchMessage;
 import com.greedycat.redstonethings.network.RedForgeMessage;
@@ -48,6 +50,7 @@ public class CommonProxy {
     	EnergyStorageCapability.register();
     	EnergyGeneratorCapability.register();
     	EnergyNetworkListCapability.register();
+    	PlayerRedstoneEnergyCapability.register();
     	
     	NetworkRegistry.INSTANCE.registerGuiHandler(BaseClass.INSTANCE, new GuiHandler());
     	

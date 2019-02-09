@@ -4,7 +4,7 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
-import com.greedycat.redstonethings.tile.BlockTileEntity;
+import com.greedycat.redstonethings.tile.BlockEnergyTileEntity;
 import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 
@@ -20,7 +20,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class RedBetterEnch extends BlockTileEntity<RedBetterEnchTile>{
+public class RedBetterEnch extends BlockEnergyTileEntity<RedBetterEnchTile>{
 	
 	public RedBetterEnch() {
 		super(Material.ANVIL);

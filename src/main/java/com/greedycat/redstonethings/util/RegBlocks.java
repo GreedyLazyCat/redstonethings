@@ -1,8 +1,10 @@
 package com.greedycat.redstonethings.util;
 
+import com.greedycat.redstonethings.block.BlackHoleBlock;
 import com.greedycat.redstonethings.block.RedBetterEnch;
 import com.greedycat.redstonethings.block.RedForge;
 import com.greedycat.redstonethings.block.Wire;
+import com.greedycat.redstonethings.tile.BlackHoleTile;
 import com.greedycat.redstonethings.tile.RedBetterEnchTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 import com.greedycat.redstonethings.tile.WireTile;
@@ -23,16 +25,20 @@ public class RegBlocks {
 	public static RedForge redForge;
 	public static Wire wire;
 	public static RedBetterEnch better_ench;
+	public static BlackHoleBlock blackHoleBlock;
 	
 	public static void register() {
 		redForge = new RedForge();
 		wire = new Wire();
 		better_ench = new RedBetterEnch();
+		blackHoleBlock = new BlackHoleBlock();
 		
 		registerBlock(redForge);
 		registerBlock(wire);
 		registerBlock(better_ench);
+		ForgeRegistries.BLOCKS.register(blackHoleBlock);
 		
+		registerTile(blackHoleBlock, BlackHoleTile.class);
 		registerTile(wire, WireTile.class);
 		registerTile(better_ench, RedBetterEnchTile.class);
 		registerTile(redForge, RedForgeTile.class);

@@ -8,7 +8,7 @@ import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.inventory.InventoryBase;
 import com.greedycat.redstonethings.proxy.CommonProxy;
-import com.greedycat.redstonethings.tile.BlockTileEntity;
+import com.greedycat.redstonethings.tile.BlockEnergyTileEntity;
 import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.RedForgeTile;
 
@@ -32,7 +32,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class RedForge extends BlockTileEntity<RedForgeTile>{
+public class RedForge extends BlockEnergyTileEntity<RedForgeTile>{
 	
 	public static final PropertyDirection FACING = PropertyDirection.create("facing",EnumFacing.Plane.HORIZONTAL);
 

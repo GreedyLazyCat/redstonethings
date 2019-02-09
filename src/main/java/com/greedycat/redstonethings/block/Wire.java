@@ -15,7 +15,7 @@ import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
-import com.greedycat.redstonethings.tile.BlockTileEntity;
+import com.greedycat.redstonethings.tile.BlockEnergyTileEntity;
 import com.greedycat.redstonethings.tile.GeneratorTile;
 import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.WireTile;
@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import scala.reflect.internal.Trees.If;
 import scala.reflect.internal.Trees.This;
 
-public class Wire extends BlockTileEntity<WireTile>{
+public class Wire extends BlockEnergyTileEntity<WireTile>{
 	//Каждое свойство отвечает за то, подключен ли к этой стороне провод или другой участник цепи(true/false)
 	public static final PropertyBool DOWN = PropertyBool.create("down");
 	public static final PropertyBool UP = PropertyBool.create("up");
@@ -143,9 +143,16 @@ public class Wire extends BlockTileEntity<WireTile>{
 	}
 	
 	@Override
+	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+		// TODO Auto-generated method stub
+		EnergyNetworkUtil.breakWire(worldIn, pos);
+		super.breakBlock(worldIn, pos, state);
+	}
+	
+	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		//BlockPos позиция одного из участников, для удобства. От неё запустим алгоритм, который поставит айдишники
-		EnergyNetworkUtil.breakWire(worldIn, pos);
+		//EnergyNetworkUtil.breakWire(worldIn, pos);
 	}
 
 	//Это метод нужен для проверки можем ли мы текстуркой "соедениться" с другим блоком

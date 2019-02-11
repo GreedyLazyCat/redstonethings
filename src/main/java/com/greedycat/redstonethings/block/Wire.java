@@ -159,12 +159,14 @@ public class Wire extends BlockEnergyTileEntity<WireTile>{
 	public boolean canConnectTo(IBlockAccess world, BlockPos pos, EnumFacing facing){
 		BlockPos child = pos.offset(facing);
 		TileEntity tileEntity = world.getTileEntity(child);
-		if(tileEntity != null) {
-			if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
+		if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
+			NetworkParticipantTile participantTile = (NetworkParticipantTile) tileEntity;
+			
+			if(participantTile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, facing)) {
 				//если генератор - да
 				return true;
 			}
-			if(tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null)) {
+			if(participantTile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, facing)) {
 				//если хранилище - да
 				return true;
 			}

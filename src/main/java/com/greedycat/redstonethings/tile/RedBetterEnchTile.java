@@ -1,5 +1,7 @@
 package com.greedycat.redstonethings.tile;
 
+import java.util.Arrays;
+
 import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyGenerator;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
@@ -41,15 +43,13 @@ public class RedBetterEnchTile extends NetworkParticipantTile implements net.min
 	
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		// TODO Auto-generated method stub
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return true;
-		if(capability == EnergyStorageCapability.ENERGY_STORAGE) return true;
+		if(facing != null && Arrays.asList(this.facing).contains(facing) && capability == EnergyStorageCapability.ENERGY_STORAGE) return true;
 		else return false;
 	}
 	
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-		// TODO Auto-generated method stub
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (T) this.handler;
 		if(capability == EnergyStorageCapability.ENERGY_STORAGE) return (T) this.storage;
 		return super.getCapability(capability, facing);

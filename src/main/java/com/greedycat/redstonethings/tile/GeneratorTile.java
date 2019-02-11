@@ -2,6 +2,8 @@ package com.greedycat.redstonethings.tile;
 
 import java.util.ArrayList;
 
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTUtil;

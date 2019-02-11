@@ -4,9 +4,9 @@ import com.greedycat.redstonethings.BaseClass;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
-import com.greedycat.redstonethings.tile.BlockEnergyTileEntity;
-import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.RedBetterEnchTile;
+import com.greedycat.redstonethings.util.tile.BlockEnergyTileEntity;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

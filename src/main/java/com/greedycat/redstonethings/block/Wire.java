@@ -15,11 +15,11 @@ import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.proxy.CommonProxy;
-import com.greedycat.redstonethings.tile.BlockEnergyTileEntity;
 import com.greedycat.redstonethings.tile.GeneratorTile;
-import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.tile.WireTile;
 import com.greedycat.redstonethings.util.EnergyNetworkUtil;
+import com.greedycat.redstonethings.util.tile.BlockEnergyTileEntity;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

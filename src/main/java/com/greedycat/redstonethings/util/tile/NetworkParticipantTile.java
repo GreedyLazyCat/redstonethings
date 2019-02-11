@@ -1,16 +1,28 @@
-package com.greedycat.redstonethings.tile;
+package com.greedycat.redstonethings.util.tile;
 
 import com.greedycat.redstonethings.util.EnergyNetworkUtil;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
 
 public class NetworkParticipantTile extends TileEntity{
 	
 	private int networkId = -1;
+	protected EnumFacing[] facing;
+	
+	public void setFacingForConnection(EnumFacing[] facing) {
+		this.facing = facing;
+	}
+	
+	public EnumFacing[] getFacingForConnection() {
+		return facing;
+	}
 	
 	@Override
 	public void onLoad() {
+		facing = EnumFacing.VALUES;
 		EnergyNetworkUtil.checkAround(getWorld(), getPos());
 		super.onLoad();
 	}

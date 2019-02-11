@@ -4,6 +4,7 @@ import com.greedycat.redstonethings.api.ConnectedWith;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.util.WireInf;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.advancements.critereon.DistancePredicate;
 import net.minecraft.block.Block;

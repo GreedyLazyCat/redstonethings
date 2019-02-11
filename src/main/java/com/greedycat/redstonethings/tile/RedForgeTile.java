@@ -11,6 +11,7 @@ import com.greedycat.redstonethings.capabilities.EnergyStorage;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.inventory.InventoryBase;
 import com.greedycat.redstonethings.network.RedForgeMessage;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -109,9 +110,11 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 				if(network != null && network.getParticipants() != null) {
 					for(BlockPos bPos : network.getParticipants()) {
 						TileEntity tileEntity = world.getTileEntity(bPos);
-						if(tileEntity != null) {
-							if(tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null)) {
-								IEnergyStorage storage = tileEntity.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+						if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
+							NetworkParticipantTile participantTile = (NetworkParticipantTile) tileEntity;
+							
+							if(participantTile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, participantTile.getFacingForConnection()[0])) {
+								IEnergyStorage storage = participantTile.getCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
 								storage.receiveEnergy(generator.getOutput(), false);
 							}
 						}

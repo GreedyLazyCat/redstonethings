@@ -3,8 +3,8 @@ package com.greedycat.redstonethings.block;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
 import com.greedycat.redstonethings.capabilities.EnergyNetwork;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
-import com.greedycat.redstonethings.tile.NetworkParticipantTile;
 import com.greedycat.redstonethings.util.EnergyNetworkUtil;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

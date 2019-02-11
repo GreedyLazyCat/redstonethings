@@ -1,4 +1,4 @@
-package com.greedycat.redstonethings.tile;
+package com.greedycat.redstonethings.util.tile;
 
 import javax.annotation.Nullable;
 
@@ -13,11 +13,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public abstract class BlockEnergyTileEntity<T extends TileEntity> extends NetworkParticipant {
+public abstract class BlockTileEntity<T extends TileEntity> extends Block {
 
     
 
-    public BlockEnergyTileEntity(Material materialIn) {
+    public BlockTileEntity(Material materialIn) {
 		super(materialIn);
 		// TODO Auto-generated constructor stub
 	}

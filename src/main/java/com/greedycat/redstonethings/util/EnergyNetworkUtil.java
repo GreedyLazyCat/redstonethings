@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.LinkedTransferQueue;
 
 import com.greedycat.redstonethings.block.Wire;
 import com.greedycat.redstonethings.capabilities.EnergyGeneratorCapability;
@@ -15,7 +16,7 @@ import com.greedycat.redstonethings.capabilities.EnergyNetwork;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkList;
 import com.greedycat.redstonethings.capabilities.EnergyNetworkListCapability;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
-import com.greedycat.redstonethings.tile.NetworkParticipantTile;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -41,13 +42,13 @@ public class EnergyNetworkUtil {
 			boolean storage = false;
 			//«десь мы просто провере€м, что полученна€ позици€ - это генератор или хранилище и записываем в переменные
 			//Ёто нам понадобитьс€ позже
-			if(tile != null) {
-				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-				if(generator) {
-					participants.add(nPos);
-				}
-				if(storage) {
+			if(tile != null && tile instanceof NetworkParticipantTile) {
+				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+				
+				generator = participant.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, participant.getFacingForConnection()[0]);
+				storage = participant.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, participant.getFacingForConnection()[0]);
+				
+				if(generator || storage) {
 					participants.add(nPos);
 				}
 			}
@@ -63,8 +64,8 @@ public class EnergyNetworkUtil {
 						if(tileEntity instanceof NetworkParticipantTile) {
 							participant = (NetworkParticipantTile) tileEntity;
 						}
-						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, face);
+						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, face);
 					}
 					//если провод - добавл€ем в очередь
 					if(world.getBlockState(child).getBlock() instanceof Wire) {
@@ -109,6 +110,7 @@ public class EnergyNetworkUtil {
 	public static void setNetworkId(World world, BlockPos start, int id) {
 		HashSet<BlockPos> checked = new HashSet<>(); //список проверенных блоков
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>(100);//ќчередь, это особенность реализации алгоритма поиска в ширину.
+		EnergyNetworkList list = getEnergyNetworkList(world);
 		
 		queue.offer(start);//ƒобавл€ем стартовую позицию в очередь
 		checked.add(start);//» сразу добавл€ем в проверенные
@@ -119,13 +121,17 @@ public class EnergyNetworkUtil {
 			TileEntity tile = world.getTileEntity(nPos);
 			boolean generator = false;
 			boolean storage = false;
-			if(tile != null) {
-				if(tile instanceof NetworkParticipantTile) {
-					NetworkParticipantTile participant = (NetworkParticipantTile) tile;
-					participant.setNetworkId(id);
-				}
-				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
+			if(tile != null && tile instanceof NetworkParticipantTile) {
+				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+				
+				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, participant.getFacingForConnection()[0]);
+				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, participant.getFacingForConnection()[0]);
+				
+				participant.setNetworkId(id);
+				
+				if((generator || storage) && list != null && list.getNetwork(id) != null)
+					list.getNetwork(id).getParticipants().add(participant.getPos());
+				
 			}
 			for (EnumFacing face : EnumFacing.VALUES) {
 				BlockPos child = nPos.offset(face);
@@ -133,13 +139,9 @@ public class EnergyNetworkUtil {
 				boolean generator_child = false;
 				boolean storage_child = false;
 				if(!checked.contains(child)) {
-					NetworkParticipantTile participant = null;
 					if(tileEntity != null) {
-						if(tileEntity instanceof NetworkParticipantTile) {
-							participant = (NetworkParticipantTile) tileEntity;
-						}
-						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, face);
+						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, face);
 					}
 					
 					if(world.getBlockState(child).getBlock() instanceof Wire) {
@@ -147,17 +149,14 @@ public class EnergyNetworkUtil {
 						queue.addLast(child);
 					}
 					if (generator_child && !generator) {
-						if(participant != null) participant.setNetworkId(id);//—тавим id
 						checked.add(child);
 						queue.addLast(child);
 					}
 					if(storage_child && !storage) {
-						if(participant != null) participant.setNetworkId(id);
 						checked.add(child);
 						queue.addLast(child);
 					}
 					if(generator && storage_child) {
-						if(participant != null) participant.setNetworkId(id);
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -182,13 +181,13 @@ public class EnergyNetworkUtil {
 			buildNetwork(world, pos);
 		}
 		// ѕровер€ем все соседние блоки
-		for(EnumFacing facing : EnumFacing.VALUES) {
-			BlockPos child = pos.offset(facing);
+		for(EnumFacing face : EnumFacing.VALUES) {
+			BlockPos child = pos.offset(face);
 			TileEntity tile = world.getTileEntity(child);
 			
 			if(tile != null && tile instanceof NetworkParticipantTile) {
-				boolean tile_generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-				boolean tile_storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+				boolean tile_generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, face);
+				boolean tile_storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, face);
 				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
 				/* “ак же, как и в buildNetwork выполн€ем проверки и в зависимости от того 
 				 * есть ли у блока id сети или нет, добавл€ем в нужный список */
@@ -302,13 +301,13 @@ public class EnergyNetworkUtil {
 			TileEntity tile = world.getTileEntity(nPos);
 			boolean generator = false;
 			boolean storage = false;
-			if(tile != null) {
-				generator = tile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-				storage = tile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
-				if(generator) {
-					participants.add(nPos);
-				}
-				if(storage) {
+			if(tile != null && tile instanceof NetworkParticipantTile) {
+				NetworkParticipantTile participant = (NetworkParticipantTile) tile;
+				
+				generator = participant.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, participant.getFacingForConnection()[0]);
+				storage = participant.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, participant.getFacingForConnection()[0]);
+				
+				if(generator || storage) {
 					participants.add(nPos);
 				}
 			}
@@ -319,8 +318,8 @@ public class EnergyNetworkUtil {
 				boolean storage_child = false;
 				if(!checked.contains(child)) {
 					if(tileEntity != null) {
-						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, null);
-						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, null);
+						generator_child = tileEntity.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, face);
+						storage_child = tileEntity.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, face);
 					}
 					if(world.getBlockState(child).getBlock() instanceof Wire) {
 						checked.add(child);

@@ -7,6 +7,7 @@ import com.greedycat.redstonethings.capabilities.EnergyStorage;
 import com.greedycat.redstonethings.capabilities.EnergyStorageCapability;
 import com.greedycat.redstonethings.network.RedBetterEnchMessage;
 import com.greedycat.redstonethings.network.RedForgeMessage;
+import com.greedycat.redstonethings.util.tile.NetworkParticipantTile;
 
 import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,7 +28,12 @@ public class RedBetterEnchTile extends NetworkParticipantTile implements net.min
 			markDirty();
 		};
 	};
-	
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		EnumFacing[] fNew = { EnumFacing.NORTH };
+		setFacingForConnection(fNew);
+	}
 	@SideOnly(Side.CLIENT)
 	public int energyPercent() {
 		return storage.getEnergyStored() /(storage.getMaxEnergyStored()/100);

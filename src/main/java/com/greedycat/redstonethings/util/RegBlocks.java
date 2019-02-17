@@ -1,6 +1,7 @@
 package com.greedycat.redstonethings.util;
 
 import com.greedycat.redstonethings.block.BlackHoleBlock;
+import com.greedycat.redstonethings.block.PlayerCharger;
 import com.greedycat.redstonethings.block.RedBetterEnch;
 import com.greedycat.redstonethings.block.RedForge;
 import com.greedycat.redstonethings.block.Wire;
@@ -26,12 +27,14 @@ public class RegBlocks {
 	public static Wire wire;
 	public static RedBetterEnch better_ench;
 	public static BlackHoleBlock blackHoleBlock;
+	public static PlayerCharger playerCharger;
 	
 	public static void register() {
 		redForge = new RedForge();
 		wire = new Wire();
 		better_ench = new RedBetterEnch();
 		blackHoleBlock = new BlackHoleBlock();
+		playerCharger = new PlayerCharger();
 		
 		registerBlock(redForge);
 		registerBlock(wire);

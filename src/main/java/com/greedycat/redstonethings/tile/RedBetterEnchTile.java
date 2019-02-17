@@ -42,6 +42,13 @@ public class RedBetterEnchTile extends NetworkParticipantTile implements net.min
 	}
 	
 	@Override
+	public boolean hasCapabilityAdvanced(Capability<?> capability, EnumFacing facing, boolean mode) {
+		if(!mode && capability == EnergyStorageCapability.ENERGY_STORAGE) return true;
+		if(mode && Arrays.asList(this.facing).contains(facing) && capability == EnergyStorageCapability.ENERGY_STORAGE) return true;
+		else return false;
+	}
+	
+	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return true;
 		if(facing != null && Arrays.asList(this.facing).contains(facing) && capability == EnergyStorageCapability.ENERGY_STORAGE) return true;

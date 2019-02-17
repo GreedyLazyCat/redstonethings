@@ -162,11 +162,11 @@ public class Wire extends BlockEnergyTileEntity<WireTile>{
 		if(tileEntity != null && tileEntity instanceof NetworkParticipantTile) {
 			NetworkParticipantTile participantTile = (NetworkParticipantTile) tileEntity;
 			
-			if(participantTile.hasCapability(EnergyStorageCapability.ENERGY_STORAGE, facing)) {
+			if(participantTile.hasCapabilityAdvanced(EnergyStorageCapability.ENERGY_STORAGE, facing, true)) {
 				//если генератор - да
 				return true;
 			}
-			if(participantTile.hasCapability(EnergyGeneratorCapability.ENERGY_GENERATOR, facing)) {
+			if(participantTile.hasCapabilityAdvanced(EnergyGeneratorCapability.ENERGY_GENERATOR, facing, true)) {
 				//если хранилище - да
 				return true;
 			}

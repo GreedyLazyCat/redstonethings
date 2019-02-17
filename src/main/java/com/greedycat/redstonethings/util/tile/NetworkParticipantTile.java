@@ -12,6 +12,24 @@ public class NetworkParticipantTile extends TileEntity{
 	private int networkId = -1;
 	protected EnumFacing[] facing;
 	
+	
+	/**
+	 * 
+	 * @param capability
+	 * @param facing
+	 * @param mode если true то facing учитываеться, false - не учитываеться 
+	 * @return
+	 */
+	public boolean hasCapabilityAdvanced(Capability<?> capability, EnumFacing facing, boolean mode) {
+		return false;
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		// TODO Auto-generated method stub
+		return super.hasCapability(capability, facing);
+	}
+	
 	public void setFacingForConnection(EnumFacing[] facing) {
 		this.facing = facing;
 	}

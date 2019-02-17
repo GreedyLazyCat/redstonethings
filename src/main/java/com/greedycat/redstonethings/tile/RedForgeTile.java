@@ -58,6 +58,12 @@ public class RedForgeTile extends GeneratorTile implements ITickable{
 	}
 	
 	@Override
+	public boolean hasCapabilityAdvanced(Capability<?> capability, EnumFacing facing, boolean mode) {
+		if(capability == EnergyGeneratorCapability.ENERGY_GENERATOR) return true;
+		else return false;
+	}
+	
+	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		// TODO Auto-generated method stub
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return true;

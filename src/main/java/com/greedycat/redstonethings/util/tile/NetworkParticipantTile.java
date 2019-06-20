@@ -24,10 +24,21 @@ public class NetworkParticipantTile extends TileEntity{
 		return false;
 	}
 	
+	public boolean canConnectTo(EnumFacing face) {
+		if(facing != null) {
+			for (int i = 0; i < facing.length; i++) {
+				if (facing[i] == face) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		// TODO Auto-generated method stub
-		return super.hasCapability(capability, facing);
+		return this.hasCapabilityAdvanced(capability, facing, true);
 	}
 	
 	public void setFacingForConnection(EnumFacing[] facing) {

@@ -355,7 +355,8 @@ public class EnergyNetworkUtil {
 						generator_child = participant.hasCapabilityAdvanced(EnergyGeneratorCapability.ENERGY_GENERATOR, face, true);
 						storage_child = participant.hasCapabilityAdvanced(EnergyStorageCapability.ENERGY_STORAGE, face, true);
 					}
-					if(world.getBlockState(child).getBlock() instanceof Wire) {
+					
+					if( !storage & !generator & world.getBlockState(child).getBlock() instanceof Wire) {
 						checked.add(child);
 						queue.addLast(child);
 					}
@@ -459,8 +460,10 @@ public class EnergyNetworkUtil {
 	public static void breakWire(World worldIn,BlockPos pos) {
 		//Сюда мы сохраним подсети, получившиеся в результате того, что мы с ломали провод
 		HashMap<BlockPos,EnergyNetwork> posses = new HashMap();
+		
 		int networkId = -1;
 		EnergyNetwork network = null;
+		
 		EnergyNetworkList list = EnergyNetworkUtil.getEnergyNetworkList(worldIn);
 		TileEntity tile = worldIn.getTileEntity(pos);
 		
@@ -525,22 +528,27 @@ public class EnergyNetworkUtil {
 			//Удаляем главную сеть
 			list.removeNetwork(networkId);
 			Iterator<Map.Entry<BlockPos, EnergyNetwork>> iterator = posses.entrySet().iterator();
+			
+			int count = 0;
+			
 			while (iterator.hasNext()) {
 				Map.Entry<BlockPos, EnergyNetwork> entry = iterator.next();
 				EnergyNetwork nEnergyNetwork = entry.getValue();
-				
 				//Если подсеть имеет генераторы, значит мы можем ее добавить в список сетей
 				if(nEnergyNetwork.hasGenerators(worldIn)) {
 					int id = list.addNetwork(nEnergyNetwork);
 					//выставляем id от ранее найденной стартовой позиции
 					BlockPos start = entry.getKey();
 					EnergyNetworkUtil.setNetworkId(worldIn, start, id, null);
+					count++;
 				}
 				else {//Если сеть не имеет генераторов - мы просто ставим id -1
 					BlockPos start = entry.getKey();
 					EnergyNetworkUtil.setNetworkId(worldIn, start, -1, null);
 				}
+				//count++;
 			}
+			System.out.println("Count:" + count);
 		}
 	}
 }

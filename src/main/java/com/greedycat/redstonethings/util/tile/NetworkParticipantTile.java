@@ -28,6 +28,7 @@ public class NetworkParticipantTile extends TileEntity{
 		if(facing != null) {
 			for (int i = 0; i < facing.length; i++) {
 				if (facing[i] == face) {
+					//System.out.println("connected to " + facing[i].toString());
 					return true;
 				}
 			}
